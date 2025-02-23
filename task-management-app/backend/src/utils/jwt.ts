@@ -16,7 +16,7 @@ export const verifyToken = (token: string) => {
 };
 
 interface AuthenticatedRequest extends Request {
-  user?: any;
+  user?: { userId: string };
 }
 
 export const authenticate = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {

@@ -42,7 +42,7 @@ export const updateTask = async (req: AuthenticatedRequest, res: Response) => {
     if (!req.user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    const task = await taskService.updateTask(req.params.id, title, description, isComplete);
+    const task = await taskService.updateTask(req.params.id, req.user.userId, title, description, isComplete);
     res.json(task);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -54,7 +54,7 @@ export const deleteTask = async (req: AuthenticatedRequest, res: Response) => {
     if (!req.user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    await taskService.deleteTask(req.params.id);
+    await taskService.deleteTask(req.params.id, req.user.userId);
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });

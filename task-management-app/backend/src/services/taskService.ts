@@ -16,14 +16,14 @@ export const taskService = {
     console.log('Task created:', result.rows[0]);
     return result.rows[0];
   },
-  updateTask: async (taskId: string, title: string, description: string, isComplete: boolean) => {
+  updateTask: async (taskId: string, userId: string, title: string, description: string, isComplete: boolean) => {
     const result = await pool.query(
-      'UPDATE tasks SET title = $1, description = $2, isComplete = $3 WHERE id = $4 RETURNING *',
-      [title, description, isComplete, taskId]
+      'UPDATE tasks SET title = $1, description = $2, isComplete = $3 WHERE id = $4 AND userId = $5 RETURNING *',
+      [title, description, isComplete, taskId, userId]
     );
     return result.rows[0];
   },
-  deleteTask: async (taskId: string) => {
-    await pool.query('DELETE FROM tasks WHERE id = $1', [taskId]);
+  deleteTask: async (taskId: string, userId: string) => {
+    await pool.query('DELETE FROM tasks WHERE id = $1 AND userId = $2', [taskId, userId]);
   }
 };

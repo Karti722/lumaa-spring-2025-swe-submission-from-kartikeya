@@ -22,6 +22,9 @@ export const login = async (req: Request, res: Response) => {
     try {
         const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
         const user = result.rows[0];
+        if (!user) {
+            return res.status(401).json({ error: 'User not found. Please register.' });
+        }
         if (user && (await bcrypt.compare(password, user.password))) {
             const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
             res.json({ token });

@@ -144,11 +144,8 @@ const Dashboard: React.FC = () => {
             <h3>{task.title}</h3>
             <p>{task.description}</p>
             <p>{task.isComplete ? 'Complete' : 'Incomplete'}</p>
-            <button onClick={() => handleUpdateTask(task.id, !task.isComplete)}>
-              {task.isComplete ? 'Mark Incomplete' : 'Mark Complete'}
-            </button>
             <button onClick={() => handleEditTask(task)}>Edit</button>
-            <button onClick={() => handleDeleteTask(task.id)}>Delete</button>
+            <button onClick={() => handleDeleteTask(task.id)}>Delete Task if complete</button>
           </li>
         ))}
       </ul>

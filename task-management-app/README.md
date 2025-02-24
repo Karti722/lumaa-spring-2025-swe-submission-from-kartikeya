@@ -1,4 +1,4 @@
-# Task Management Application
+# Task Management Application Created by Kartikeya Kumaria
 
 ## Overview
 
@@ -17,25 +17,54 @@ This is a full-stack "Task Management" application built using React + TypeScrip
 - **Database**: PostgreSQL
 - **Authentication**: JWT for token-based authentication, bcrypt for password hashing
 
-
 ## Setup Instructions
 
-1. Clone the repo onto your local machine (git clone https://github.com/Karti722/lumaa-spring-2025-swe-submission-from-kartikeya.git)
+### Clone the Repository
+
+1. Clone the repo onto your local machine:
+   ```
+   git clone https://github.com/Karti722/lumaa-spring-2025-swe-submission-from-kartikeya.git
+   ```
 
 ### Backend
 
-1. Navigate to the `tast_management/backend` directory on your terminal or Windows CMD.
-2. Install dependencies with these two commands:
+1. Navigate to the `task_management-app/backend` directory on your terminal or Windows CMD.
+2. Install dependencies:
    ```
-   npm install bcrypt@^5.0.1 cors@^2.8.5 dotenv@^10.0.0 express@^4.17.1 jsonwebtoken@^8.5.1 pg@^8.7.1 pg-hstore@^2.3.4
-   ```
-   ```
-   npm install --save-dev @types/bcrypt@^5.0.0 @types/cors@^2.8.10 @types/express@^4.17.13 @types/jsonwebtoken@^8.5.5 @types/node@^16.11.7 @types/pg@^8.11.11 ts-node@^10.9.2 ts-node-dev@^2.0.0 typescript@^5.7.3
+   npm install
    ```
 
    
-3. Set up the PostgreSQL database and run migrations as specified in the backend README.
-4. set up tsconfig.json in the backend folder (root) 
+3. Set up the PostgreSQL database and make sure to store the password somewhere safe for reference (like a .txt file on your desktop):
+   - Create a new database for the application.
+   - Run the necessary migrations to set up the `users` and `tasks` tables using the query tool in PgAdmin4 under your tasks database. Insert the following code and run it.
+ ```
+ CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE tasks (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    isComplete BOOLEAN DEFAULT FALSE,
+    userId INTEGER REFERENCES users(id) ON DELETE CASCADE
+);
+ ```
+ 4. Create a super user when adding Login/Group roles in PgAdmin 4. Remember to also store this
+.
+ 5. Make sure to set up a .env file and set up the credentials as per this example. Only change the DB_USER, DB_NAME, and DB_PASSWORD variables to what you have set up on your database (or PgAdmin 4)
+```
+DB_USER=<YOUR_DB_SUPERUSER_HERE>
+DB_HOST=localhost
+DB_NAME=<YOUR_DB_NAME_HERE>
+DB_PASSWORD=<YOUR_DB_PASSWORD_HERE>
+DB_PORT=5432
+JWT_SECRET=your_jwt_secret
+```
+ 6. Make sure the tsconfig.json in the backend folder is set up to the root of the backend folder itself
    ```
    {
   "compilerOptions": {
@@ -51,24 +80,25 @@ This is a full-stack "Task Management" application built using React + TypeScrip
   "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }
-   ```
-5. Start the server:
+```
+7. Start the server from the backend root directory (`task_management-app/backend`):
    ```
    npm run dev
    ```
 
+
 ### Frontend
 
-1. Navigate to the `frontend` directory.
-2. Install dependencies:
+8. Navigate to the `task-management-app\frontend` directory.
+9. Install dependencies:
    ```
    npm install
    ```
-3. Update the API base URL in the frontend to point to the backend server.
-4. Start the React application:
+10. Start the React application:
    ```
    npm start
    ```
+11. Now that the frontend and backend servers are running, you can login, add, update, and delete tasks
 
 ## Usage
 
@@ -76,11 +106,16 @@ This is a full-stack "Task Management" application built using React + TypeScrip
 2. Log in using the registered credentials.
 3. Manage tasks by creating, updating, and deleting them from the tasks page.
 
-## Notes
+## Testing
 
-- Ensure that the PostgreSQL server is running before starting the backend.
-- The application is designed to be minimal and functional, focusing on core features.
+Using ThunderClient
+You can use ThunderClient, a REST API client extension for Visual Studio Code, to manually test the APIs.
 
-## License
-
-This project is licensed under the MIT License.
+## How to Install ThunderClient?
+Install ThunderClient from the Visual Studio Code marketplace.
+Open ThunderClient and create new requests to test the various endpoints (e.g., POST /auth/register, POST /auth/login, GET /tasks, POST /tasks, PUT /tasks/:id, DELETE /tasks/:id).
+Ensure to include the JWT token in the headers for protected routes.
+Relevant Notes on Testing
+Ensure that the PostgreSQL server is running before starting the backend.
+Use the .env file to configure environment variables for the database connection and JWT secret.
+Test all endpoints to verify that they are working as expected.

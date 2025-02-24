@@ -25,24 +25,33 @@ This is the backend for the Task Management application built using Node.js (or 
    npm install
    ```
 
-3. Set up the PostgreSQL database:
+3. Set up the PostgreSQL database and make sure to store the password somewhere safe for reference (like a .txt file on your desktop):
    - Create a new database for the application.
-   - Run the necessary migrations to set up the `users` and `tasks` tables.
+   - Run the necessary migrations to set up the `users` and `tasks` tables using the query tool in PgAdmin4 under your tasks database. Insert the following code and run it.
+ ```
+ CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
 
-### Environment Variables
+CREATE TABLE tasks (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    isComplete BOOLEAN DEFAULT FALSE,
+    userId INTEGER REFERENCES users(id) ON DELETE CASCADE
+);
+ ```
+ 4. Create a super user when adding Login/Group roles in PgAdmin 4. Remember to also store this
+ 5. Add these values in a format in the main README
 
-Create a `.env` file in the `backend` directory and add the following variables:
-
-```
-DATABASE_URL=postgres://<username>:<password>@localhost:5432/<database_name>
-JWT_SECRET=<your_jwt_secret>
-```
 
 ### Running the Application
 
 1. Start the server:
    ```
-   npm run start
+   npm run dev
    ```
 
 2. The server will run on `http://localhost:5000` (or the port specified in your configuration).
@@ -72,13 +81,5 @@ JWT_SECRET=<your_jwt_secret>
 
 ## Testing
 
-- Ensure that all endpoints are tested using tools like Postman or Insomnia.
-- You can also write unit tests for your services and controllers.
+- I used the ThunderClient extension from VS Code to test all api end points individually, with the appropriate payloads as well
 
-## Contribution
-
-Feel free to fork the repository and submit pull requests for any improvements or bug fixes.
-
-## License
-
-This project is licensed under the MIT License.

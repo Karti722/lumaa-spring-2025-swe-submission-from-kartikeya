@@ -106,7 +106,7 @@ JWT_SECRET=your_jwt_secret
 2. Log in using the registered credentials.
 3. Manage tasks by creating, updating, and deleting them from the tasks page.
 
-## Testing
+## API Testing -- I Used ThunderClient
 
 Using ThunderClient
 You can use ThunderClient, a REST API client extension for Visual Studio Code, to manually test the APIs.
@@ -114,8 +114,14 @@ You can use ThunderClient, a REST API client extension for Visual Studio Code, t
 ## How to Install ThunderClient?
 Install ThunderClient from the Visual Studio Code marketplace.
 Open ThunderClient and create new requests to test the various endpoints (e.g., POST /auth/register, POST /auth/login, GET /tasks, POST /tasks, PUT /tasks/:id, DELETE /tasks/:id).
-Ensure to include the JWT token in the headers for protected routes.
+Ensure to include the JWT token (you get this from running  the login POST request) in the headers for protected routes.
 Relevant Notes on Testing
 Ensure that the PostgreSQL server is running before starting the backend.
 Use the .env file to configure environment variables for the database connection and JWT secret.
-Test all endpoints to verify that they are working as expected.
+Test all endpoints to verify that they are working as expected. Screenshots of all the ThunderClient tests are in the setting-up-images directory
+
+## Salary expectations:
+I believe with my skills and experience in web development, my desired salary is at minimum $40,000-$50,000 a year. I am open to negotiations if that can't be arranged.
+
+## Demonstration Video Link:
+https://www.loom.com/share/3195d894a0e1463588b1bbb13d778c94?sid=72ac8308-d3a2-4054-bdfe-5371d42f627c 

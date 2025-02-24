@@ -45,7 +45,7 @@ JWT_SECRET=<your_jwt_secret>
    npm run start
    ```
 
-2. The server will run on `http://localhost:3000` (or the port specified in your configuration).
+2. The server will run on `http://localhost:5000` (or the port specified in your configuration).
 
 ### API Endpoints
 

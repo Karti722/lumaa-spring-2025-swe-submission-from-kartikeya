@@ -17,49 +17,44 @@ This is a full-stack "Task Management" application built using React + TypeScrip
 - **Database**: PostgreSQL
 - **Authentication**: JWT for token-based authentication, bcrypt for password hashing
 
-## Project Structure
-
-```
-task-management-app
-├── backend
-│   ├── src
-│   │   ├── controllers
-│   │   ├── models
-│   │   ├── routes
-│   │   ├── services
-│   │   ├── utils
-│   │   ├── app.ts
-│   │   ├── server.ts
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── README.md
-├── frontend
-│   ├── src
-│   │   ├── components
-│   │   ├── pages
-│   │   ├── services
-│   │   ├── App.tsx
-│   │   ├── index.tsx
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── README.md
-├── README.md
-└── .gitignore
-```
 
 ## Setup Instructions
 
+1. Clone the repo onto your local machine (git clone https://github.com/Karti722/lumaa-spring-2025-swe-submission-from-kartikeya.git)
+
 ### Backend
 
-1. Navigate to the `backend` directory.
-2. Install dependencies:
+1. Navigate to the `tast_management/backend` directory on your terminal or Windows CMD.
+2. Install dependencies with these two commands:
    ```
-   npm install
+   npm install bcrypt@^5.0.1 cors@^2.8.5 dotenv@^10.0.0 express@^4.17.1 jsonwebtoken@^8.5.1 pg@^8.7.1 pg-hstore@^2.3.4
    ```
+   ```
+   npm install --save-dev @types/bcrypt@^5.0.0 @types/cors@^2.8.10 @types/express@^4.17.13 @types/jsonwebtoken@^8.5.5 @types/node@^16.11.7 @types/pg@^8.11.11 ts-node@^10.9.2 ts-node-dev@^2.0.0 typescript@^5.7.3
+   ```
+
+   
 3. Set up the PostgreSQL database and run migrations as specified in the backend README.
-4. Start the server:
+4. set up tsconfig.json in the backend folder (root) 
    ```
-   npm run start
+   {
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
+}
+   ```
+5. Start the server:
+   ```
+   npm run dev
    ```
 
 ### Frontend

@@ -22,18 +22,11 @@ const Login: React.FC = () => {
       console.log("Login response:", response);
       localStorage.setItem('token', response.data.token);
       alert('Login successful');
-      // Redirect to tasks page or dashboard
+      navigate('/dashboard'); // Redirect to tasks page or dashboard
     } catch (err) {
       const error = err as AxiosError<ErrorResponse>;
       console.error('Login failed:', error);
-      if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
-        console.error('Error response headers:', error.response.headers);
-        alert('Login failed: ' + (error.response.data.message || 'Unknown error'));
-      } else {
-        alert('Login failed: Unknown error');
-      }
+      alert("login failed. No user found with these credentials");
     }
   };
 

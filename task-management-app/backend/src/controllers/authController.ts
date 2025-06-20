@@ -36,18 +36,6 @@ export const login = async (req: Request, res: Response) => {
     }
 };
 
-// export const deleteUser = async (req: Request, res: Response) => {
-//     const { username } = req.body;
-//     try {
-//         const result = await pool.query('DELETE FROM users WHERE username = $1 RETURNING *', [username]);
-//         if (result.rowCount === 0) {
-//             return res.status(404).json({ error: 'User not found' });
-//         }
-//         res.json({ message: 'User deleted successfully' });
-//     } catch (error) {
-//         res.status(500).json({ error: error });
-//     }
-// };
 
 export const deleteUser = async (req: Request, res: Response) => {
     const { username } = req.body;

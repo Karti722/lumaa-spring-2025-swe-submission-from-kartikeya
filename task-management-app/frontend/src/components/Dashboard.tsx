@@ -103,7 +103,6 @@ const Dashboard: React.FC = () => {
       console.error('Failed to save task:', error);
     }
   };
-
   const handleDeleteTask = async (id: number) => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -112,10 +111,14 @@ const Dashboard: React.FC = () => {
     }
 
     try {
+      console.log(`Attempting to delete task with id: ${id}`);
       await deleteTask(token, id);
       setTasks(tasks.filter(task => task.id !== id));
+      console.log(`Task ${id} deleted successfully`);
     } catch (error) {
       console.error('Failed to delete task:', error);
+      // Show a user-friendly error message
+      alert('Failed to delete task. Please try again.');
     }
   };
   return (
@@ -175,11 +178,9 @@ const Dashboard: React.FC = () => {
                 >
                   <span className="btn-icon">{task.isComplete ? '↺' : '✓'}</span>
                   {task.isComplete ? 'Mark Incomplete' : 'Mark Complete'}
-                </button>
-                <button 
+                </button>                <button 
                   className="delete-btn" 
                   onClick={() => handleDeleteTask(task.id)}
-                  disabled={!task.isComplete}
                 >
                   <span className="btn-icon">🗑</span>
                   Delete

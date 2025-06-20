@@ -54,9 +54,15 @@ export const deleteTask = async (req: AuthenticatedRequest, res: Response) => {
     if (!req.user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    await taskService.deleteTask(req.params.id, req.user.userId);
+    console.log(`Received request to delete task ${req.params.id} for user: ${req.user.userId}`);
+    const deletedTask = await taskService.deleteTask(req.params.id, req.user.userId);
+    console.log('Task deleted successfully:', deletedTask);
     res.status(204).send();
   } catch (error) {
+    console.error('Error deleting task:', error);
+    if (error instanceof Error && error.message === 'Task not found or not authorized to delete') {
+      return res.status(404).json({ error: error.message });
+    }
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };

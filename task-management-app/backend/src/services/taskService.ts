@@ -24,6 +24,12 @@ export const taskService = {
     return result.rows[0];
   },
   deleteTask: async (taskId: string, userId: string) => {
-    await pool.query('DELETE FROM tasks WHERE id = $1 AND userId = $2', [taskId, userId]);
+    console.log(`Deleting task with id: ${taskId} for userId: ${userId}`);
+    const result = await pool.query('DELETE FROM tasks WHERE id = $1 AND userId = $2 RETURNING *', [taskId, userId]);
+    console.log('Delete result:', result.rows);
+    if (result.rowCount === 0) {
+      throw new Error('Task not found or not authorized to delete');
+    }
+    return result.rows[0];
   }
 };

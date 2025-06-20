@@ -37,3 +37,9 @@ export const deleteTask = (token: string, id: number) => {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
+
+export const deleteAccount = (username: string) => {
+  return api.delete('/auth/delete', {
+    data: { username },
+  });
+};

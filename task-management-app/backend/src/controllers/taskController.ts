@@ -42,9 +42,17 @@ export const updateTask = async (req: AuthenticatedRequest, res: Response) => {
     if (!req.user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
+    console.log(`Received request to update task ${req.params.id} for user: ${req.user.userId}`);
+    console.log('Update data:', { title, description, isComplete });
+    
     const task = await taskService.updateTask(req.params.id, req.user.userId, title, description, isComplete);
+    console.log('Task updated successfully:', task);
     res.json(task);
   } catch (error) {
+    console.error('Error updating task:', error);
+    if (error instanceof Error && error.message === 'Task not found or not authorized to update') {
+      return res.status(404).json({ error: error.message });
+    }
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };

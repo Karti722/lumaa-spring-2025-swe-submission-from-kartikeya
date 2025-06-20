@@ -7,7 +7,6 @@ const Register: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -18,6 +17,7 @@ const Register: React.FC = () => {
             const response = await loginUser(email, password);
             console.log("Login response:", response);
             localStorage.setItem('token', response.data.token);
+            localStorage.setItem('username', email);
             alert('Login successful');
             navigate('/dashboard'); // Redirect to tasks page or dashboard
     } catch (error) {

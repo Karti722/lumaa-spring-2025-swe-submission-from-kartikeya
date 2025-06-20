@@ -14,7 +14,6 @@ const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -22,6 +21,7 @@ const Login: React.FC = () => {
       const response = await loginUser(username, password);
       console.log("Login response:", response);
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('username', username);
       alert('Login successful');
       navigate('/dashboard'); // Redirect to tasks page or dashboard
     } catch (err) {
@@ -38,7 +38,7 @@ const Login: React.FC = () => {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h2 className="auth-title">Welcome Back</h2>
+          <h2 className="auth-title">Welcome Back to your Task Manager</h2>
           <p className="auth-subtitle">Sign in to your account</p>
         </div>
         

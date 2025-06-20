@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTasks, createTask, updateTask, deleteTask } from '../services/api';
+import { getTasks, createTask, updateTask, deleteTask, deleteAccount } from '../services/api';
 import './Dashboard.css';
 
 interface Task {
@@ -17,6 +17,7 @@ const Dashboard: React.FC = () => {
   const [editTaskId, setEditTaskId] = useState<number | null>(null);
   const [editTaskTitle, setEditTaskTitle] = useState('');
   const [editTaskDescription, setEditTaskDescription] = useState('');
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,10 +39,30 @@ const Dashboard: React.FC = () => {
 
     fetchTasks();
   }, [navigate]);
-
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('username');
     navigate('/login');
+  };
+
+  const handleDeleteAccount = async () => {
+    const username = localStorage.getItem('username');
+    if (!username) {
+      alert('Username not found. Please log in again.');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      await deleteAccount(username);
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      alert('Account deleted successfully');
+      navigate('/login');
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+      alert('Failed to delete account. Please try again.');
+    }
   };
 
   const handleCreateTask = async () => {
@@ -60,7 +81,6 @@ const Dashboard: React.FC = () => {
       console.error('Failed to create task:', error);
     }
   };
-
   const handleUpdateTask = async (id: number, isComplete: boolean) => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -69,11 +89,14 @@ const Dashboard: React.FC = () => {
     }
 
     try {
+      console.log(`Updating task ${id} to isComplete: ${isComplete}`);
       const updatedTask = { isComplete };
-      await updateTask(token, id, updatedTask);
+      const response = await updateTask(token, id, updatedTask);
+      console.log('Update response:', response);
       setTasks(tasks.map(task => (task.id === id ? { ...task, isComplete } : task)));
     } catch (error) {
       console.error('Failed to update task:', error);
+      alert('Failed to update task. Please try again.');
     }
   };
 
@@ -121,14 +144,19 @@ const Dashboard: React.FC = () => {
       alert('Failed to delete task. Please try again.');
     }
   };
-  return (
-    <div className="dashboard-container">
+  return (    <div className="dashboard-container">
       <div className="dashboard-header">
         <h2 className="dashboard-title">Task Dashboard</h2>
-        <button className="logout-btn" onClick={handleLogout}>
-          <span className="logout-icon">⏻</span>
-          Logout
-        </button>
+        <div className="header-actions">
+          <button className="delete-account-btn" onClick={() => setShowDeleteConfirmation(true)}>
+            <span className="delete-icon">🗑</span>
+            Delete Account
+          </button>
+          <button className="logout-btn" onClick={handleLogout}>
+            <span className="logout-icon">⏻</span>
+            Logout
+          </button>
+        </div>
       </div>
       
       <div className="create-task-section">
@@ -189,9 +217,7 @@ const Dashboard: React.FC = () => {
             </div>
           ))}
         </div>
-      </div>
-
-      {editTaskId !== null && (
+      </div>      {editTaskId !== null && (
         <div className="modal-overlay">
           <div className="edit-modal">
             <h3 className="modal-title">Edit Task</h3>
@@ -216,6 +242,32 @@ const Dashboard: React.FC = () => {
                   Save Changes
                 </button>
                 <button className="cancel-btn" onClick={() => setEditTaskId(null)}>
+                  <span className="btn-icon">✕</span>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeleteConfirmation && (
+        <div className="modal-overlay">
+          <div className="delete-confirmation-modal">
+            <h3 className="modal-title">⚠️ Delete Account</h3>
+            <div className="modal-content">
+              <p className="warning-text">
+                Are you sure you want to delete your account? This action cannot be undone.
+              </p>
+              <p className="warning-subtext">
+                All your tasks and data will be permanently deleted.
+              </p>
+              <div className="modal-actions">
+                <button className="delete-confirm-btn" onClick={handleDeleteAccount}>
+                  <span className="btn-icon">🗑</span>
+                  Yes, Delete Account
+                </button>
+                <button className="cancel-btn" onClick={() => setShowDeleteConfirmation(false)}>
                   <span className="btn-icon">✕</span>
                   Cancel
                 </button>

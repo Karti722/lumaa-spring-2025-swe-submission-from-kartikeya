@@ -76,13 +76,13 @@ const Login: React.FC = () => {
             <span className="btn-icon">→</span>
           </button>
         </form>
-        
-        <div className="auth-footer">
+          <div className="auth-footer">
           <p className="auth-link-text">Don't have an account?</p>
           <button type="button" className="auth-btn secondary" onClick={handleRegisterRedirect}>
             <span className="btn-text">Create Account</span>
             <span className="btn-icon">+</span>
           </button>
+          <p className="auth-credit">Made by Kartikeya Kumaria</p>
         </div>
       </div>
       

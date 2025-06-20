@@ -24,6 +24,10 @@ const Register: React.FC = () => {
     }
   };
 
+    const handleLoginRedirect = () => {
+    navigate('/login');
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <h2>Register</h2>
@@ -40,6 +44,7 @@ const Register: React.FC = () => {
         onChange={(e) => setPassword(e.target.value)}
       />
       <button type="submit">Register</button>
+      <button type="button" onClick={handleLoginRedirect}>Back to Login</button>
     </form>
   );
 };

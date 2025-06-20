@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTasks, createTask, updateTask, deleteTask } from '../services/api';
+import './Dashboard.css';
 
 interface Task {
   id: number;
@@ -117,54 +118,109 @@ const Dashboard: React.FC = () => {
       console.error('Failed to delete task:', error);
     }
   };
-
   return (
-    <div>
-      <h2>Dashboard</h2>
-      <button onClick={handleLogout}>Logout</button>
-      <div>
-        <h3>Create New Task</h3>
-        <input
-          type="text"
-          placeholder="Title"
-          value={newTaskTitle}
-          onChange={(e) => setNewTaskTitle(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Description"
-          value={newTaskDescription}
-          onChange={(e) => setNewTaskDescription(e.target.value)}
-        />
-        <button onClick={handleCreateTask}>Create Task</button>
+    <div className="dashboard-container">
+      <div className="dashboard-header">
+        <h2 className="dashboard-title">Task Dashboard</h2>
+        <button className="logout-btn" onClick={handleLogout}>
+          <span className="logout-icon">⏻</span>
+          Logout
+        </button>
       </div>
-      <ul>
-        {tasks.map((task) => (
-          <li key={task.id}>
-            <h3>{task.title}</h3>
-            <p>{task.description}</p>
-            <p>{task.isComplete ? 'Complete' : 'Incomplete'}</p>
-            <button onClick={() => handleEditTask(task)}>Edit</button>
-            <button onClick={() => handleDeleteTask(task.id)}>Delete Task if complete</button>
-          </li>
-        ))}
-      </ul>
+      
+      <div className="create-task-section">
+        <h3 className="section-title">Create New Task</h3>
+        <div className="task-form">
+          <input
+            type="text"
+            className="task-input"
+            placeholder="Enter task title..."
+            value={newTaskTitle}
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+          />
+          <input
+            type="text"
+            className="task-input task-description"
+            placeholder="Enter task description..."
+            value={newTaskDescription}
+            onChange={(e) => setNewTaskDescription(e.target.value)}
+          />
+          <button className="create-btn" onClick={handleCreateTask}>
+            <span className="btn-icon">+</span>
+            Create Task
+          </button>
+        </div>
+      </div>
+
+      <div className="tasks-section">
+        <h3 className="section-title">Your Tasks</h3>
+        <div className="tasks-grid">
+          {tasks.map((task) => (
+            <div key={task.id} className={`task-card ${task.isComplete ? 'completed' : ''}`}>
+              <div className="task-header">
+                <h4 className="task-title">{task.title}</h4>
+                <div className={`status-badge ${task.isComplete ? 'complete' : 'incomplete'}`}>
+                  {task.isComplete ? '✓ Complete' : '○ Incomplete'}
+                </div>
+              </div>
+              <p className="task-description">{task.description}</p>
+              <div className="task-actions">
+                <button className="edit-btn" onClick={() => handleEditTask(task)}>
+                  <span className="btn-icon">✎</span>
+                  Edit
+                </button>
+                <button 
+                  className="toggle-btn"
+                  onClick={() => handleUpdateTask(task.id, !task.isComplete)}
+                >
+                  <span className="btn-icon">{task.isComplete ? '↺' : '✓'}</span>
+                  {task.isComplete ? 'Mark Incomplete' : 'Mark Complete'}
+                </button>
+                <button 
+                  className="delete-btn" 
+                  onClick={() => handleDeleteTask(task.id)}
+                  disabled={!task.isComplete}
+                >
+                  <span className="btn-icon">🗑</span>
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {editTaskId !== null && (
-        <div>
-          <h3>Edit Task</h3>
-          <input
-            type="text"
-            placeholder="Title"
-            value={editTaskTitle}
-            onChange={(e) => setEditTaskTitle(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Description"
-            value={editTaskDescription}
-            onChange={(e) => setEditTaskDescription(e.target.value)}
-          />
-          <button onClick={handleSaveTask}>Save Task</button>
+        <div className="modal-overlay">
+          <div className="edit-modal">
+            <h3 className="modal-title">Edit Task</h3>
+            <div className="modal-form">
+              <input
+                type="text"
+                className="task-input"
+                placeholder="Task title..."
+                value={editTaskTitle}
+                onChange={(e) => setEditTaskTitle(e.target.value)}
+              />
+              <input
+                type="text"
+                className="task-input task-description"
+                placeholder="Task description..."
+                value={editTaskDescription}
+                onChange={(e) => setEditTaskDescription(e.target.value)}
+              />
+              <div className="modal-actions">
+                <button className="save-btn" onClick={handleSaveTask}>
+                  <span className="btn-icon">💾</span>
+                  Save Changes
+                </button>
+                <button className="cancel-btn" onClick={() => setEditTaskId(null)}>
+                  <span className="btn-icon">✕</span>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

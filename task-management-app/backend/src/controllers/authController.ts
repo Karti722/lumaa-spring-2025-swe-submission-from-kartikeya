@@ -35,3 +35,37 @@ export const login = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+// export const deleteUser = async (req: Request, res: Response) => {
+//     const { username } = req.body;
+//     try {
+//         const result = await pool.query('DELETE FROM users WHERE username = $1 RETURNING *', [username]);
+//         if (result.rowCount === 0) {
+//             return res.status(404).json({ error: 'User not found' });
+//         }
+//         res.json({ message: 'User deleted successfully' });
+//     } catch (error) {
+//         res.status(500).json({ error: error });
+//     }
+// };
+
+export const deleteUser = async (req: Request, res: Response) => {
+    const { username } = req.body;
+    try {
+        // Get user id by username
+        const userResult = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
+        const user = userResult.rows[0];
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Delete all tasks for this user using userId
+        await pool.query('DELETE FROM tasks WHERE userId = $1', [user.id]);
+
+        // Delete the user
+        const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [user.id]);
+        res.json({ message: 'User and their tasks deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};

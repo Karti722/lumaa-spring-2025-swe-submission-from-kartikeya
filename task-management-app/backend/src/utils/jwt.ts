@@ -23,7 +23,8 @@ export const authenticate = (req: AuthenticatedRequest, res: Response, next: Nex
   const authHeader = req.get('Authorization');
   const token = authHeader?.replace('Bearer ', '');
   if (!token) {
-    return res.status(401).json({ error: 'Access denied. No token provided.' });
+    res.status(401).json({ error: 'Access denied. No token provided.' });
+    return;
   }
 
   try {
@@ -32,5 +33,6 @@ export const authenticate = (req: AuthenticatedRequest, res: Response, next: Nex
     next();
   } catch (ex) {
     res.status(400).json({ error: 'Invalid token.' });
+    return;
   }
 };

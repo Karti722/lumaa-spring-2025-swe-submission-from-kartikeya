@@ -23,16 +23,20 @@ export const login = async (req: Request, res: Response) => {
         const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
         const user = result.rows[0];
         if (!user) {
-            return res.status(401).json({ error: 'User not found. Please register.' });
+            res.status(401).json({ error: 'User not found. Please register.' });
+            return;
         }
         if (user && (await bcrypt.compare(password, user.password))) {
             const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
             res.json({ token });
+            return;
         } else {
             res.status(401).json({ error: 'Invalid credentials' });
+            return;
         }
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
+        return;
     }
 };
 
@@ -44,7 +48,8 @@ export const deleteUser = async (req: Request, res: Response) => {
         const userResult = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
         const user = userResult.rows[0];
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            res.status(404).json({ error: 'User not found' });
+            return;
         }
 
         // Delete all tasks for this user using userId

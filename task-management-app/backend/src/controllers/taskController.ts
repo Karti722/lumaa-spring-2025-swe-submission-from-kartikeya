@@ -3,6 +3,8 @@ import { taskService } from '../services/taskService';
 
 interface AuthenticatedRequest extends Request {
   user?: { userId: string };
+  body: any;
+  params: any;
 }
 
 export const getTasks = async (req: AuthenticatedRequest, res: Response) => {

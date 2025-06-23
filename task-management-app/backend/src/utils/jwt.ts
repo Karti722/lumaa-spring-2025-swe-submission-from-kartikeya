@@ -20,7 +20,8 @@ interface AuthenticatedRequest extends Request {
 }
 
 export const authenticate = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  const authHeader = req.get('Authorization');
+  const token = authHeader?.replace('Bearer ', '');
   if (!token) {
     return res.status(401).json({ error: 'Access denied. No token provided.' });
   }

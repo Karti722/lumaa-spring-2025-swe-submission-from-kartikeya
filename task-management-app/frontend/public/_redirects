@@ -1,0 +1,5 @@
+# Static Site Redirects for React Router
+/*    /index.html   200
+
+# This tells static hosting to serve index.html for all routes
+# so React Router can handle client-side routing

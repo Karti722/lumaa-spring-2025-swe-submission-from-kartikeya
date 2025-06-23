@@ -14,13 +14,18 @@ module.exports = (env, argv) => {
       clean: true,
       publicPath: '/',
     },    resolve: {
-      extensions: ['.ts', '.tsx', '.js'],
+      extensions: ['.ts', '.tsx', '.js', '.mjs'],
       fallback: {
         "process": require.resolve("process/browser"),
         "buffer": require.resolve("buffer"),
+        "util": require.resolve("util"),
+        "stream": require.resolve("stream-browserify"),
+        "crypto": false,
+        "fs": false,
+        "path": false,
+        "os": false,
       }
-    },
-    module: {
+    },    module: {
       rules: [
         {
           test: /\.tsx?$/,
@@ -31,6 +36,12 @@ module.exports = (env, argv) => {
           test: /\.css$/i,
           use: ['style-loader', 'css-loader'],
         },
+        {
+          test: /\.m?js$/,
+          resolve: {
+            fullySpecified: false,
+          },
+        },
       ],
     },
     plugins: [
@@ -38,10 +49,8 @@ module.exports = (env, argv) => {
         template: './src/index.html',
         minify: isProduction,
       }),      new webpack.DefinePlugin({
-        'process.env': JSON.stringify({
-          REACT_APP_API_URL: process.env.REACT_APP_API_URL || 'http://localhost:5000',
-          NODE_ENV: isProduction ? 'production' : 'development',
-        }),
+        '__API_URL__': JSON.stringify(process.env.REACT_APP_API_URL || 'http://localhost:5000'),
+        'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
       }),new webpack.ProvidePlugin({
         process: 'process/browser',
         Buffer: ['buffer', 'Buffer'],

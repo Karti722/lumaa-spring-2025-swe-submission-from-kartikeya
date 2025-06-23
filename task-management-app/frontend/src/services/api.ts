@@ -1,7 +1,5 @@
 import axios from 'axios';
-
-// Ensure environment variable is properly typed and fallback is provided
-const API_URL = (typeof process !== 'undefined' && process.env?.REACT_APP_API_URL) || 'http://localhost:5000';
+import { API_URL } from '../config';
 
 const api = axios.create({
   baseURL: API_URL,

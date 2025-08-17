@@ -1,0 +1,29 @@
+# Files Created and/or Changed for Survey App Backend Implementation
+
+## Backend (task-management-app/backend)
+
+### Created
+- src/models/surveyModel.ts
+- src/services/surveyService.ts
+- src/controllers/surveyController.ts
+- src/routes/surveyRoutes.ts
+- test-survey-api.ps1
+- thunderclient-survey-api.txt
+
+### Changed
+- src/server.ts (added survey routes, error handling)
+- src/app.ts (added survey routes)
+- src/utils/setupSurveyTables.ts (added/updated questions table for survey)
+- src/models/userModel.ts (if user auth was adapted for survey)
+- src/models/taskModel.ts (if repurposed for survey)
+- src/utils/db.ts (if updated for survey connection)
+
+### Removed (if applicable)
+- All files/folders unrelated to survey app (e.g., setting-up-images, frontend, test-survey-api.js)
+
+---
+
+# Note
+- Only files directly related to the survey backend implementation are listed.
+- Some files may have been created/changed multiple times during debugging and feature additions.
+- For full details, see your git commit history.

@@ -21,16 +21,27 @@ export const getSurveys = async (req: Request, res: Response) => {
 export const getSurvey = async (req: Request, res: Response) => {
   try {
     const surveyId = parseInt(req.params.id);
+    console.log(`Getting survey with ID: ${surveyId}`);
+    
+    if (isNaN(surveyId)) {
+      return res.status(400).json({ error: 'Invalid survey ID' });
+    }
+    
     const survey = await surveyService.getSurveyWithQuestions(surveyId);
     
     if (!survey) {
       return res.status(404).json({ error: 'Survey not found' });
     }
     
+    console.log(`Found survey: ${survey.title} with ${survey.questions.length} questions`);
     res.json(survey);
   } catch (error) {
     console.error('Error fetching survey:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    res.status(500).json({ 
+      error: 'Internal Server Error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
@@ -128,13 +139,19 @@ export const getSurveySubmission = async (req: Request, res: Response) => {
 // Utility endpoint to create sample survey
 export const createSampleSurvey = async (req: Request, res: Response) => {
   try {
+    console.log('Creating sample survey...');
     const survey = await surveyService.createSampleSurvey();
+    console.log(`Sample survey created with ID: ${survey.id}`);
     res.status(201).json({
       message: 'Sample survey created successfully',
       survey
     });
   } catch (error) {
     console.error('Error creating sample survey:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    res.status(500).json({ 
+      error: 'Internal Server Error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };

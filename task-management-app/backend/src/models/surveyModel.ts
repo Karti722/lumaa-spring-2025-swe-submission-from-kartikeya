@@ -59,26 +59,67 @@ export const getSurveyById = async (id: number): Promise<Survey | null> => {
 
 // Question CRUD operations
 export const createQuestion = async (question: Omit<Question, 'id'>): Promise<Question> => {
-  const result = await pool.query(
-    'INSERT INTO questions (survey_id, title, description, question_type, options, required, order_index) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-    [question.survey_id, question.title, question.description, question.question_type, JSON.stringify(question.options), question.required, question.order_index]
-  );
-  const row = result.rows[0];
-  return {
-    ...row,
-    options: row.options ? JSON.parse(row.options) : null
-  };
+  try {
+    console.log('createQuestion called with:', JSON.stringify(question, null, 2));
+    console.log('Options value before DB insert:', question.options);
+    const result = await pool.query(
+      'INSERT INTO questions (survey_id, title, description, question_type, options, required, order_index) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [question.survey_id, question.title, question.description, question.question_type, 
+       question.options ? JSON.stringify(question.options) : null, question.required, question.order_index]
+    );
+    const row = result.rows[0];
+    console.log('DB returned row:', row);
+    return {
+      ...row,
+      options: row.options ? JSON.parse(row.options) : null
+    };
+  } catch (error) {
+    console.error('Error creating question:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      if ((error as any).detail) {
+        console.error('Error detail:', (error as any).detail);
+      }
+      if ((error as any).hint) {
+        console.error('Error hint:', (error as any).hint);
+      }
+      if ((error as any).code) {
+        console.error('Error code:', (error as any).code);
+      }
+      if (error.stack) {
+        console.error('Stack trace:', error.stack);
+      }
+    } else {
+      console.error('Unknown error object:', error);
+    }
+    throw error;
+  }
 };
 
 export const getQuestionsBySurveyId = async (surveyId: number): Promise<Question[]> => {
-  const result = await pool.query(
-    'SELECT * FROM questions WHERE survey_id = $1 ORDER BY order_index ASC',
-    [surveyId]
-  );
-  return result.rows.map(row => ({
-    ...row,
-    options: row.options ? JSON.parse(row.options) : null
-  }));
+  try {
+    const result = await pool.query(
+      'SELECT * FROM questions WHERE survey_id = $1 ORDER BY order_index ASC',
+      [surveyId]
+    );
+    return result.rows.map(row => {
+      try {
+        return {
+          ...row,
+          options: row.options ? JSON.parse(row.options) : null
+        };
+      } catch (parseError) {
+        console.error('Error parsing options for question:', row.id, parseError);
+        return {
+          ...row,
+          options: null
+        };
+      }
+    });
+  } catch (error) {
+    console.error('Error getting questions by survey ID:', surveyId, error);
+    throw error;
+  }
 };
 
 // Response operations

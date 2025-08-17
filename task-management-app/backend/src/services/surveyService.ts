@@ -151,7 +151,7 @@ export class SurveyService {
       "Which of these best describes your household income?",
       "select",
       "Select your annual household income range",
-      ["Under $25,000", "$25,000 - $49,999", "$50,000 - $74,999", "$75,000 - $99,999", "$100,000 - $149,999", "$150,000+", "Prefer not to say"]
+      ["Under 25,000", "25,000 - 49,999", "50,000 - 74,999", "75,000 - 99,999", "100,000 - 149,999", "150,000+", "Prefer not to say"]
     );
 
     await this.addQuestionToSurvey(

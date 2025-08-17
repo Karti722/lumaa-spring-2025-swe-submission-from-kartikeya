@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .error {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <h1>Survey API Test Dashboard</h1>
+    
+    <div class="test-section">
+        <h3>1. Health Check</h3>
+        <button onclick="testHealthCheck()">Test Health Endpoint</button>
+        <div id="health-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Create Sample Survey</h3>
+        <button onclick="createSampleSurvey()">Create Sample Demographics Survey</button>
+        <div id="sample-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Get All Surveys</h3>
+        <button onclick="getAllSurveys()">Get All Surveys</button>
+        <div id="surveys-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Get Survey Details</h3>
+        <input type="number" id="survey-id" placeholder="Survey ID" value="1">
+        <button onclick="getSurveyDetails()">Get Survey with Questions</button>
+        <div id="survey-details-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Submit Survey Response</h3>
+        <button onclick="submitSampleResponse()">Submit Sample Response</button>
+        <div id="submit-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>6. Run All Tests</h3>
+        <button onclick="runAllTests()">Run Complete Test Suite</button>
+        <div id="all-tests-result" class="result"></div>
+    </div>
+
+    <script>
+        const baseUrl = 'http://localhost:5000';
+        let currentSurveyId = null;
+        let currentSessionId = null;
+
+        function displayResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.className = `result ${isError ? 'error' : 'success'}`;
+        }
+
+        async function testHealthCheck() {
+            try {
+                const response = await fetch(`${baseUrl}/health`);
+                const result = await response.json();
+                displayResult('health-result', result);
+            } catch (error) {
+                displayResult('health-result', { error: error.message }, true);
+            }
+        }
+
+        async function createSampleSurvey() {
+            try {
+                const response = await fetch(`${baseUrl}/api/surveys/sample/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                currentSurveyId = result.survey?.id;
+                if (currentSurveyId) {
+                    document.getElementById('survey-id').value = currentSurveyId;
+                }
+                displayResult('sample-result', result);
+            } catch (error) {
+                displayResult('sample-result', { error: error.message }, true);
+            }
+        }
+
+        async function getAllSurveys() {
+            try {
+                const response = await fetch(`${baseUrl}/api/surveys`);
+                const result = await response.json();
+                displayResult('surveys-result', result);
+            } catch (error) {
+                displayResult('surveys-result', { error: error.message }, true);
+            }
+        }
+
+        async function getSurveyDetails() {
+            try {
+                const surveyId = document.getElementById('survey-id').value;
+                const response = await fetch(`${baseUrl}/api/surveys/${surveyId}`);
+                const result = await response.json();
+                displayResult('survey-details-result', result);
+                return result;
+            } catch (error) {
+                displayResult('survey-details-result', { error: error.message }, true);
+                return null;
+            }
+        }
+
+        async function submitSampleResponse() {
+            try {
+                const surveyId = document.getElementById('survey-id').value || currentSurveyId;
+                if (!surveyId) {
+                    throw new Error('Please create a survey first or enter a survey ID');
+                }
+
+                // Get survey details first to get question IDs
+                const surveyResponse = await fetch(`${baseUrl}/api/surveys/${surveyId}`);
+                const survey = await surveyResponse.json();
+                
+                if (!survey.questions || survey.questions.length === 0) {
+                    throw new Error('Survey has no questions');
+                }
+
+                // Create sample responses
+                const responses = survey.questions.map((question, index) => {
+                    let answer;
+                    switch (question.question_type) {
+                        case 'text':
+                            answer = index === 0 ? 'John Doe' : 'Sample text answer';
+                            break;
+                        case 'email':
+                            answer = 'john.doe@example.com';
+                            break;
+                        case 'number':
+                            answer = '30';
+                            break;
+                        case 'radio':
+                        case 'select':
+                            answer = question.options?.[0] || 'Option 1';
+                            break;
+                        case 'checkbox':
+                            answer = question.options?.[0] || 'Option 1';
+                            break;
+                        case 'textarea':
+                            answer = 'This is a sample long-form response for testing purposes.';
+                            break;
+                        default:
+                            answer = 'Sample answer';
+                    }
+                    return { questionId: question.id, answer };
+                });
+
+                const submitResponse = await fetch(`${baseUrl}/api/surveys/${surveyId}/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ responses })
+                });
+                
+                const result = await submitResponse.json();
+                currentSessionId = result.sessionId;
+                displayResult('submit-result', result);
+            } catch (error) {
+                displayResult('submit-result', { error: error.message }, true);
+            }
+        }
+
+        async function runAllTests() {
+            const resultElement = document.getElementById('all-tests-result');
+            resultElement.textContent = 'Running tests...\n';
+            resultElement.className = 'result';
+
+            try {
+                // Test 1: Health check
+                resultElement.textContent += '1. Testing health endpoint...\n';
+                await testHealthCheck();
+                
+                // Test 2: Create sample survey
+                resultElement.textContent += '2. Creating sample survey...\n';
+                await createSampleSurvey();
+                
+                // Test 3: Get all surveys
+                resultElement.textContent += '3. Getting all surveys...\n';
+                await getAllSurveys();
+                
+                // Test 4: Get survey details
+                resultElement.textContent += '4. Getting survey details...\n';
+                await getSurveyDetails();
+                
+                // Test 5: Submit response
+                resultElement.textContent += '5. Submitting sample response...\n';
+                await submitSampleResponse();
+                
+                resultElement.textContent += '\n✅ All tests completed successfully!';
+                resultElement.className = 'result success';
+            } catch (error) {
+                resultElement.textContent += `\n❌ Test failed: ${error.message}`;
+                resultElement.className = 'result error';
+            }
+        }
+    </script>
+</body>
+</html>

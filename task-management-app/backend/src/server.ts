@@ -1,5 +1,12 @@
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load .env file from the backend directory
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
+
 import app from './app';
 import { pool } from './utils/db';
+import { createSurveyTables } from './utils/setupSurveyTables';
 
 const PORT = process.env.PORT || 5000;
 
@@ -20,6 +27,9 @@ const connectToDatabase = async () => {
     console.log('- User:', process.env.DB_USER);
     console.log('- SSL:', process.env.NODE_ENV === 'production' ? 'enabled' : 'disabled');
     client.release();
+    
+    // Create survey tables after successful connection
+    await createSurveyTables();
   } catch (err: Error | any) {
     console.error('❌ Database connection failed:');
     console.error('Error message:', err.message);

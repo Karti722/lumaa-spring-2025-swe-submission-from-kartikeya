@@ -6,7 +6,9 @@ import {
   addQuestionToSurvey,
   submitSurveyResponse,
   getSurveySubmission,
-  createSampleSurvey
+  createSampleSurvey,
+  getUserSubmissions,
+  deleteUserSubmission
 } from '../controllers/surveyController';
 
 const router = express.Router();
@@ -16,6 +18,11 @@ router.get('/surveys', getSurveys);
 router.get('/surveys/:id', getSurvey);
 router.post('/surveys/:id/submit', submitSurveyResponse);
 router.get('/submissions/:sessionId', getSurveySubmission);
+
+// Authenticated user: get all their submissions
+router.get('/my-submissions', getUserSubmissions);
+// Authenticated user: delete one of their submissions
+router.delete('/my-submissions/:submissionId', deleteUserSubmission);
 
 // Admin routes - could add authentication later
 router.post('/surveys', createSurvey);

@@ -1,0 +1,57 @@
+
+# User Authentication Implementation Files
+
+## Files Changed or Created
+
+### Controllers
+- src/controllers/authController.ts
+- src/controllers/surveyController.ts
+
+### Models
+- src/models/userModel.ts
+- src/models/surveyModel.ts
+
+### Services
+- src/services/authService.ts
+
+### Routes
+- src/routes/authRoutes.ts
+- src/routes/surveyRoutes.ts
+
+### Utils
+- src/utils/db.ts
+
+### Migrations
+- migrations/20250817_fix_users_table.sql
+
+
+### Test
+- test/auth-survey-api.test.ts
+
+### Migration Script
+- migrate.ts
+
+### App Entry
+- src/app.ts
+
+### Jest Config
+- jest.config.ts
+
+## Packages Installed
+
+### For Cookie Handling
+- cookie-parser
+	- Install: `npm install cookie-parser`
+	- Types: `npm install --save-dev @types/cookie-parser`
+
+### For Testing
+- supertest
+	- Install: `npm install --save-dev supertest`
+- jest
+	- Install: `npm install --save-dev jest @types/jest ts-jest`
+
+### For Database
+- pg (already present, required for PostgreSQL)
+
+---
+This list includes all files and packages changed or created for the user authentication feature, including session management, user roles, and test coverage.

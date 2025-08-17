@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes';
 import taskRoutes from './routes/taskRoutes';
 import surveyRoutes from './routes/surveyRoutes';
@@ -8,6 +9,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -19,7 +21,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.use('/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api', surveyRoutes);
 app.use('/', taskRoutes);
 

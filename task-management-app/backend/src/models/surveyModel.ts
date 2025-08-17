@@ -1,3 +1,39 @@
+// Get all submissions for a user
+export const getSurveySubmissionByUser = async (userId: number): Promise<SurveySubmission[]> => {
+  const result = await pool.query(
+    `SELECT ss.*, 
+       json_agg(
+         json_build_object(
+           'id', r.id,
+           'question_id', r.question_id,
+           'answer', r.answer,
+           'submitted_at', r.submitted_at
+         )
+       ) as responses
+     FROM survey_submissions ss
+     LEFT JOIN responses r ON ss.session_id = r.session_id
+     WHERE ss.user_id = $1
+     GROUP BY ss.id`,
+    [userId]
+  );
+  return result.rows || [];
+};
+// Delete all submissions and responses for a user
+export const deleteUserSubmissions = async (userId: number) => {
+  // Get all submission ids for this user
+  const submissions = await pool.query('SELECT id FROM survey_submissions WHERE user_id = $1', [userId]);
+  for (const row of submissions.rows) {
+    await deleteSurveySubmission(row.id);
+  }
+};
+
+// Delete a single submission and its responses
+export const deleteSurveySubmission = async (submissionId: number) => {
+  // Delete responses
+  await pool.query('DELETE FROM responses WHERE session_id = (SELECT session_id FROM survey_submissions WHERE id = $1)', [submissionId]);
+  // Delete submission
+  await pool.query('DELETE FROM survey_submissions WHERE id = $1', [submissionId]);
+};
 import { pool } from '../utils/db';
 
 export interface Survey {

@@ -2,16 +2,21 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { pool } from '../utils/db';
+import { findUserByUsername, createUser } from '../models/userModel';
+import { deleteUserSubmissions } from '../models/surveyModel';
 
 export const register = async (req: Request, res: Response) => {
     const { username, password } = req.body;
     try {
+        const { role = 'user' } = req.body;
+        // Check for unique username
+        const existingUser = await findUserByUsername(username);
+        if (existingUser) {
+            return res.status(409).json({ error: 'Username already exists' });
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const result = await pool.query(
-            'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *',
-            [username, hashedPassword]
-        );
-        res.status(201).json(result.rows[0]);
+        const user = await createUser(username, hashedPassword, role);
+        res.status(201).json({ id: user.id, username: user.username, role: user.role });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
@@ -20,23 +25,65 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
     const { username, password } = req.body;
     try {
-        const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
-        const user = result.rows[0];
+        const user = await findUserByUsername(username);
         if (!user) {
-            res.status(401).json({ error: 'User not found. Please register.' });
-            return;
+            return res.status(401).json({ error: 'User not found. Please register.' });
         }
-        if (user && (await bcrypt.compare(password, user.password))) {
-            const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
-            res.json({ token });
-            return;
+        if (await bcrypt.compare(password, user.password)) {
+            const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+            res.cookie('token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+            return res.json({ message: 'Login successful', user: { id: user.id, username: user.username, role: user.role } });
         } else {
-            res.status(401).json({ error: 'Invalid credentials' });
-            return;
+            return res.status(401).json({ error: 'Invalid credentials' });
         }
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
         return;
+    }
+};
+// Logout: clear the cookie
+export const logout = (req: Request, res: Response) => {
+    res.clearCookie('token');
+    res.json({ message: 'Logged out successfully' });
+};
+
+// Get current user info from token
+export const getCurrentUser = (req: Request, res: Response) => {
+    const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Not authenticated' });
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+        // Optionally fetch user from DB for fresh info
+        return res.json({ user: decoded });
+    } catch {
+        return res.status(401).json({ error: 'Invalid token' });
+    }
+};
+
+// Get user role by username/password
+export const getUserRole = async (req: Request, res: Response) => {
+    const { username, password } = req.body;
+    const user = await findUserByUsername(username);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!(await bcrypt.compare(password, user.password))) return res.status(401).json({ error: 'Invalid credentials' });
+    return res.json({ role: user.role });
+};
+
+// Delete user account and all their submissions
+export const deleteAccount = async (req: Request, res: Response) => {
+    const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Not authenticated' });
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+        const userId = decoded.userId;
+        // Delete all submissions for this user
+        await deleteUserSubmissions(userId);
+        // Delete user
+        await pool.query('DELETE FROM users WHERE id = $1', [userId]);
+        res.clearCookie('token');
+        return res.json({ message: 'Account and submissions deleted' });
+    } catch {
+        return res.status(401).json({ error: 'Invalid token' });
     }
 };
 

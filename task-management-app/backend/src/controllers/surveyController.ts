@@ -1,3 +1,38 @@
+import jwt from 'jsonwebtoken';
+import { getSurveySubmissionByUser, deleteSurveySubmission } from '../models/surveyModel';
+// Get all submissions for the current user
+export const getUserSubmissions = async (req: Request, res: Response) => {
+  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    const userId = decoded.userId;
+    const submissions = await getSurveySubmissionByUser(userId);
+    return res.json({ submissions });
+  } catch {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+};
+
+// Delete a submission for the current user
+export const deleteUserSubmission = async (req: Request, res: Response) => {
+  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    const userId = decoded.userId;
+    const submissionId = parseInt(req.params.submissionId);
+    // Check that submission belongs to user
+    const submissions = await getSurveySubmissionByUser(userId);
+    if (!submissions.some((s: any) => s.id === submissionId)) {
+      return res.status(403).json({ error: 'Not authorized to delete this submission' });
+    }
+    await deleteSurveySubmission(submissionId);
+    return res.json({ message: 'Submission deleted' });
+  } catch {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+};
 import { Request, Response } from 'express';
 import { surveyService } from '../services/surveyService';
 

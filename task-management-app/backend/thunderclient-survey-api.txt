@@ -82,7 +82,8 @@ Headers:
   Content-Type: application/json
 Body (JSON):
 {
-  "title": "Email Question",
+  "title": "What is your email address?",
+  "description": "Please enter a valid email address so we can contact you if needed.",
   "questionType": "email"
 }
 

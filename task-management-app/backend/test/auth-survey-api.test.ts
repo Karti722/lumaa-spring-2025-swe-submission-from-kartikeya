@@ -1,7 +1,46 @@
+
 import request from 'supertest';
 import app from '../src/app';
 
 describe('User Authentication & Survey API', () => {
+
+  it('should allow admin to download all survey data as JSON, CSV, and TXT', async () => {
+    // Register and login as admin
+    const adminUsername = 'admin_dl_' + Date.now();
+    const adminPassword = 'adminpass';
+    await request(app)
+      .post('/api/auth/register')
+      .send({ username: adminUsername, password: adminPassword, role: 'admin' });
+    const adminLoginRes = await request(app)
+      .post('/api/auth/login')
+      .send({ username: adminUsername, password: adminPassword });
+    const adminToken = adminLoginRes.headers['set-cookie'][0].split(';')[0].split('=')[1];
+
+    // Download as JSON
+    const resJson = await request(app)
+      .post('/api/admin/download-survey-data')
+      .set('Cookie', `token=${adminToken}`)
+      .send({ downloadFileType: 'json' });
+    expect(resJson.status).toBe(200);
+    expect(resJson.header['content-disposition']).toMatch(/attachment/);
+
+    // Download as CSV
+    const resCsv = await request(app)
+      .post('/api/admin/download-survey-data')
+      .set('Cookie', `token=${adminToken}`)
+      .send({ downloadFileType: 'csv' });
+    expect(resCsv.status).toBe(200);
+    expect(resCsv.header['content-disposition']).toMatch(/attachment/);
+
+    // Download as TXT
+    const resTxt = await request(app)
+      .post('/api/admin/download-survey-data')
+      .set('Cookie', `token=${adminToken}`)
+      .send({ downloadFileType: 'txt' });
+    expect(resTxt.status).toBe(200);
+    expect(resTxt.header['content-disposition']).toMatch(/attachment/);
+  });
+
   let token: string;
   let submissionId: number;
   let username = 'testuser_' + Date.now();
@@ -11,7 +50,7 @@ describe('User Authentication & Survey API', () => {
     const res = await request(app)
       .post('/api/auth/register')
       .send({ username, password, role: 'user' });
-  expect(res.status).toBe(201);
+    expect(res.status).toBe(201);
     expect(res.body.username).toBe(username);
     expect(res.body.role).toBe('user');
   }, 15000);
@@ -32,6 +71,16 @@ describe('User Authentication & Survey API', () => {
     expect(res.body.user.username).toBe(username);
     expect(res.headers['set-cookie']).toBeDefined();
     token = res.headers['set-cookie'][0].split(';')[0].split('=')[1];
+  });
+
+  it('should forbid non-admin from downloading survey data', async () => {
+    // token is set by user login test
+    expect(token).toBeDefined();
+    const resUser = await request(app)
+      .post('/api/admin/download-survey-data')
+      .set('Cookie', `token=${token}`)
+      .send({ downloadFileType: 'json' });
+    expect(resUser.status).toBe(403);
   });
 
   it('should get current user info', async () => {
@@ -111,10 +160,10 @@ describe('User Authentication & Survey API', () => {
       .set('Cookie', `token=${token}`);
     const subId = res.body.submissions[0]?.id;
     if (subId) {
-      const delRes = await request(app)
+	  const delRes = await request(app)
         .delete(`/api/my-submissions/${subId}`)
         .set('Cookie', `token=${token}`);
-      expect(delRes.status).toBe(200);
+	  expect(delRes.status).toBe(200);
     }
   });
 
@@ -130,3 +179,5 @@ describe('User Authentication & Survey API', () => {
     await pool.end();
   });
 });
+
+

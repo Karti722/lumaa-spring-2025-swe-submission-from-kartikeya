@@ -1,4 +1,6 @@
+
 import express from 'express';
+const router = express.Router();
 import {
   getSurveys,
   getSurvey,
@@ -8,10 +10,11 @@ import {
   getSurveySubmission,
   createSampleSurvey,
   getUserSubmissions,
-  deleteUserSubmission
+  deleteUserSubmission,
+  downloadAllSurveyData
 } from '../controllers/surveyController';
-
-const router = express.Router();
+// Admin: download all survey data (json/csv/txt)
+router.post('/admin/download-survey-data', downloadAllSurveyData);
 
 // Public routes - no authentication required
 router.get('/surveys', getSurveys);

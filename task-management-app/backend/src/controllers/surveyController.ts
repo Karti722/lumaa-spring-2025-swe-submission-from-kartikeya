@@ -1,3 +1,53 @@
+import fs from 'fs';
+import path from 'path';
+// Admin-only: Download all survey data as JSON, CSV, or TXT
+export const downloadAllSurveyData = async (req: Request, res: Response) => {
+  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    if (decoded.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden: Admins only' });
+    }
+    // Get all surveys with questions
+    const surveys = await surveyService.getAllSurveys();
+    const fileType = req.body.downloadFileType || 'json';
+    let fileContent = '';
+    let fileExt = 'json';
+    if (fileType === 'csv') {
+      // Flatten surveys to CSV
+      fileExt = 'csv';
+      const rows = [];
+      rows.push('survey_id,survey_title,survey_description,question_id,question_title,question_type,question_required,question_order');
+      for (const survey of surveys) {
+        const questions = await surveyService.getQuestions(survey.id);
+        for (const q of questions) {
+          rows.push(`${survey.id},"${survey.title}","${survey.description || ''}",${q.id},"${q.title}",${q.question_type},${q.required},${q.order_index}`);
+        }
+      }
+      fileContent = rows.join('\n');
+    } else if (fileType === 'txt') {
+      fileExt = 'txt';
+      fileContent = JSON.stringify(surveys, null, 2);
+    } else {
+      fileExt = 'json';
+      fileContent = JSON.stringify(surveys, null, 2);
+    }
+    const fileName = `survey_data_${Date.now()}.${fileExt}`;
+    const filePath = path.join(__dirname, '../../downloads', fileName);
+    fs.writeFileSync(filePath, fileContent);
+    res.download(filePath, fileName, err => {
+      if (err) {
+        res.status(500).json({ error: 'File download failed' });
+      } else {
+        // Optionally delete file after download
+        setTimeout(() => { try { fs.unlinkSync(filePath); } catch {} }, 10000);
+      }
+    });
+  } catch (e) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+};
 import jwt from 'jsonwebtoken';
 import { getSurveySubmissionByUser, deleteSurveySubmission } from '../models/surveyModel';
 // Get all submissions for the current user

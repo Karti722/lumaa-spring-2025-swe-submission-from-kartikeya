@@ -1,3 +1,4 @@
+// ...existing code...
 import { 
   Survey, 
   Question, 
@@ -11,11 +12,16 @@ import {
   createResponse,
   getResponsesBySession,
   createSurveySubmission,
-  getSurveySubmissionBySession
+  getSurveySubmissionBySession,
+  getAllSurveySubmissions
 } from '../models/surveyModel';
 import { v4 as uuidv4 } from 'uuid';
 
 class SurveyService {
+  // Admin: get all survey submissions
+  async getAllSurveySubmissions(): Promise<SurveySubmission[]> {
+    return await getAllSurveySubmissions();
+  }
   // Survey operations
   async createSurvey(title: string, description?: string): Promise<Survey> {
     return await createSurvey({ title, description });

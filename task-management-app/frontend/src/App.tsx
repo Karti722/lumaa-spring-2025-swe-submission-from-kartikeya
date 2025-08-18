@@ -1,4 +1,4 @@
-import './App.css';
+
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import SurveyPage from './pages/SurveyPage';
@@ -7,10 +7,12 @@ import RegisterPage from './pages/RegisterPage';
 import ThankYouPage from './pages/ThankYouPage';
 import DashboardPage from './pages/DashboardPage';
 import SubmissionDetailPage from './pages/SubmissionDetailPage';
+import Navbar from './components/Navbar';
 
 function App() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
+      <Navbar />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/survey/:surveyId" element={<SurveyPage />} />

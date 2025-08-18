@@ -11,8 +11,11 @@ import {
   createSampleSurvey,
   getUserSubmissions,
   deleteUserSubmission,
-  downloadAllSurveyData
+  downloadAllSurveyData,
+  getAllSurveySubmissions
 } from '../controllers/surveyController';
+// Admin: get all survey submissions
+router.get('/admin/all-submissions', getAllSurveySubmissions);
 // Admin: download all survey data (json/csv/txt)
 router.post('/admin/download-survey-data', downloadAllSurveyData);
 

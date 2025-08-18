@@ -22,9 +22,23 @@ const LoginPage: React.FC = () => {
     setError(null);
     try {
       await login(email, password);
+      // Check for pending survey in localStorage
+      const pending = localStorage.getItem('pendingSurvey');
+      if (pending) {
+        const { surveyId, answers } = JSON.parse(pending);
+        // Submit as user
+        const responses = Object.entries(answers).map(([questionId, answer]) => ({
+          questionId: Number(questionId),
+          answer
+        }));
+        await import('../api').then(api => api.submitSurveyResponse(surveyId, { responses }));
+        localStorage.removeItem('pendingSurvey');
+        navigate('/thank-you');
+        return;
+      }
       // If coming from survey, go back to survey page and preserve answers
       if (fromSurvey && surveyId) {
-        navigate(`/survey/${surveyId}`, { state: { answers } });
+        navigate(`/survey/${surveyId}`);
       } else {
         navigate('/');
       }
@@ -41,8 +55,8 @@ const LoginPage: React.FC = () => {
       <form className="bg-white shadow rounded p-6 w-full max-w-sm" onSubmit={handleSubmit}>
         <input
           className="mb-4 w-full px-3 py-2 border rounded"
-          type="email"
-          placeholder="Email"
+          type="text"
+          placeholder="Username or Email"
           value={email}
           onChange={e => setEmail(e.target.value)}
           required

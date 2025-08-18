@@ -14,7 +14,7 @@ export async function fetchSurveyById(id: string) {
 }
 
 export async function submitSurveyResponse(surveyId: string, answers: any, token?: string) {
-  const res = await fetch(`${API_BASE}/surveys/${surveyId}/response`, {
+  const res = await fetch(`${API_BASE}/surveys/${surveyId}/submit`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

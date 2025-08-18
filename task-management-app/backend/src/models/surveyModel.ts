@@ -1,3 +1,21 @@
+// Get all survey submissions (admin)
+export const getAllSurveySubmissions = async (): Promise<SurveySubmission[]> => {
+  const result = await pool.query(
+    `SELECT ss.*, 
+       json_agg(
+         json_build_object(
+           'id', r.id,
+           'question_id', r.question_id,
+           'answer', r.answer,
+           'submitted_at', r.submitted_at
+         )
+       ) as responses
+     FROM survey_submissions ss
+     LEFT JOIN responses r ON ss.session_id = r.session_id
+     GROUP BY ss.id`
+  );
+  return result.rows || [];
+};
 // Get all submissions for a user
 export const getSurveySubmissionByUser = async (userId: number): Promise<SurveySubmission[]> => {
   const result = await pool.query(

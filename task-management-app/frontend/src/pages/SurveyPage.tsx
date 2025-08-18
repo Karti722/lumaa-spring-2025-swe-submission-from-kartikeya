@@ -98,9 +98,14 @@ const SurveyPage: React.FC = () => {
   const handleAnonymousSubmit = async () => {
     setSubmitting(true);
     try {
-      await submitSurveyResponse(survey.id, { answers });
+      // Convert answers object to array of { questionId, answer }
+      const responses = Object.entries(answers).map(([questionId, answer]) => ({
+        questionId: Number(questionId),
+        answer
+      }));
+      await submitSurveyResponse(survey.id, { responses });
       navigate('/thank-you');
-  } catch {
+    } catch {
       alert('Failed to submit survey.');
     } finally {
       setSubmitting(false);
@@ -110,9 +115,13 @@ const SurveyPage: React.FC = () => {
   const handleUserSubmit = async () => {
     setSubmitting(true);
     try {
-      await submitSurveyResponse(survey.id, { answers }, token || undefined);
+      const responses = Object.entries(answers).map(([questionId, answer]) => ({
+        questionId: Number(questionId),
+        answer
+      }));
+      await submitSurveyResponse(survey.id, { responses }, token || undefined);
       navigate(`/${user?.username}-survey-submissions`);
-  } catch {
+    } catch {
       alert('Failed to submit survey.');
     } finally {
       setSubmitting(false);
@@ -195,14 +204,20 @@ const SurveyPage: React.FC = () => {
               <>
                 <button
                   className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  onClick={() => navigate('/login', { state: { fromSurvey: true, surveyId, answers } })}
+                  onClick={() => {
+                    localStorage.setItem('pendingSurvey', JSON.stringify({ surveyId, answers }));
+                    navigate('/login', { state: { fromSurvey: true, surveyId } });
+                  }}
                   disabled={submitting}
                 >
                   Login
                 </button>
                 <button
                   className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                  onClick={() => navigate('/register', { state: { fromSurvey: true, surveyId, answers } })}
+                  onClick={() => {
+                    localStorage.setItem('pendingSurvey', JSON.stringify({ surveyId, answers }));
+                    navigate('/register', { state: { fromSurvey: true, surveyId } });
+                  }}
                   disabled={submitting}
                 >
                   Register

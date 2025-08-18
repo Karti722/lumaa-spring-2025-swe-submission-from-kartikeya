@@ -1,46 +1,61 @@
-import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { pool } from '../utils/db';
-import { findUserByUsername, createUser } from '../models/userModel';
-import { deleteUserSubmissions } from '../models/surveyModel';
-
+// Minimal register function (username, password)
 export const register = async (req: Request, res: Response) => {
     const { username, password } = req.body;
     try {
-        const { role = 'user' } = req.body;
         // Check for unique username
         const existingUser = await findUserByUsername(username);
         if (existingUser) {
             return res.status(409).json({ error: 'Username already exists' });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await createUser(username, hashedPassword, role);
+        const user = await createUser(username, hashedPassword, 'user');
         res.status(201).json({ id: user.id, username: user.username, role: user.role });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+import { Request, Response } from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+// ...existing code...
+import { findUserByUsername, createUser } from '../models/userModel';
+import { pool } from '../utils/db';
+import { deleteUserSubmissions } from '../models/surveyModel';
 
 export const login = async (req: Request, res: Response) => {
-    const { username, password } = req.body;
+    const { email, username, password } = req.body;
+    const loginId = email || username;
+    console.log('LOGIN ATTEMPT:', { loginId, password });
     try {
-        const user = await findUserByUsername(username);
+        // Try username first
+        let user = await findUserByUsername(loginId);
+        // If not found, try email (assuming users table has an email column)
         if (!user) {
+            const result = await pool.query('SELECT * FROM users WHERE email = $1', [loginId]);
+            user = result.rows[0];
+        }
+        console.log('USER FOUND:', user);
+        if (!user) {
+            console.error('User not found:', loginId);
             return res.status(401).json({ error: 'User not found. Please register.' });
         }
-        if (await bcrypt.compare(password, user.password)) {
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        console.log('PASSWORD MATCH:', passwordMatch);
+        if (passwordMatch) {
             const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET!, { expiresIn: '7d' });
             res.cookie('token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+            console.log('LOGIN SUCCESS:', user.username);
             return res.json({ message: 'Login successful', user: { id: user.id, username: user.username, role: user.role } });
         } else {
+            console.error('Invalid credentials for user:', loginId);
             return res.status(401).json({ error: 'Invalid credentials' });
         }
     } catch (error) {
+        console.error('LOGIN ERROR:', error);
         res.status(500).json({ error: 'Internal Server Error' });
-        return;
     }
 };
+// (duplicate login function removed)
 // Logout: clear the cookie
 export const logout = (req: Request, res: Response) => {
     res.clearCookie('token');

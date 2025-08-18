@@ -23,9 +23,23 @@ const RegisterPage: React.FC = () => {
     setError(null);
     try {
       await register(username, email, password);
+      // Check for pending survey in localStorage
+      const pending = localStorage.getItem('pendingSurvey');
+      if (pending) {
+        const { surveyId, answers } = JSON.parse(pending);
+        // Submit as user
+        const responses = Object.entries(answers).map(([questionId, answer]) => ({
+          questionId: Number(questionId),
+          answer
+        }));
+        await import('../api').then(api => api.submitSurveyResponse(surveyId, { responses }));
+        localStorage.removeItem('pendingSurvey');
+        navigate('/thank-you');
+        return;
+      }
       // If coming from survey, go back to survey page and preserve answers
       if (fromSurvey && surveyId) {
-        navigate(`/survey/${surveyId}`, { state: { answers } });
+        navigate(`/survey/${surveyId}`);
       } else {
         navigate('/');
       }

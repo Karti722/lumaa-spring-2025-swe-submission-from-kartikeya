@@ -268,35 +268,13 @@ const SurveyPage: React.FC = () => {
         ) : (
           <div className="flex flex-col space-y-2 mt-8">
             {!user && (
-              <>
-                <button
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  onClick={() => {
-                    localStorage.setItem('pendingSurvey', JSON.stringify({ surveyId, answers }));
-                    navigate('/login', { state: { fromSurvey: true, surveyId } });
-                  }}
-                  disabled={submitting}
-                >
-                  Login
-                </button>
-                <button
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                  onClick={() => {
-                    localStorage.setItem('pendingSurvey', JSON.stringify({ surveyId, answers }));
-                    navigate('/register', { state: { fromSurvey: true, surveyId } });
-                  }}
-                  disabled={submitting}
-                >
-                  Register
-                </button>
-                <button
-                  className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-                  onClick={handleAnonymousSubmit}
-                  disabled={submitting}
-                >
-                  Submit Anonymously
-                </button>
-              </>
+              <button
+                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                onClick={handleAnonymousSubmit}
+                disabled={submitting}
+              >
+                Submit Anonymously
+              </button>
             )}
             {user && (
               <button

@@ -23,13 +23,17 @@
 - test/auth-survey-api.test.ts  (tests admin/non-admin download and all-submissions behavior)
 
 
+
 ### Frontend
 - src/pages/SeeAllSubmissionsPage.tsx  (admin view of all submissions, download buttons, download-all-data button, admin-only access/redirect)
 - src/pages/CreateSurveyPage.tsx  (admin survey creation, admin-only access/redirect)
 - src/contexts/AuthContextOnly.tsx  (add user.role to context)
 - src/contexts/AuthContext.tsx  (propagate user.role from backend, store in context)
 - src/hooks/useAuth.ts  (used for admin checks in pages)
-- src/components/Navbar.tsx  (admin dropdown menu)
+- src/components/Navbar.tsx  (admin dropdown menu, logout now redirects to root and shows alert)
+- src/pages/LoginPage.tsx  (shows alert on successful login)
+- src/pages/RegisterPage.tsx  (shows alert on successful registration)
+- src/pages/SurveyPage.tsx  (removed Login/Register buttons above 'Submit Anonymously', only shows 'Submit Anonymously' for guests)
 - src/App.tsx  (routing for admin pages)
 
 ## Packages Used

@@ -22,7 +22,8 @@ const RegisterPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      await register(username, email, password);
+  await register(username, email, password);
+  alert('Registration successful!');
       // Check for pending survey in localStorage
       const pending = localStorage.getItem('pendingSurvey');
       if (pending) {

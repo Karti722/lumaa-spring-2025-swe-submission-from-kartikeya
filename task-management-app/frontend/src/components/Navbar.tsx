@@ -1,9 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    alert('Logged out successfully!');
+    navigate('/');
+  };
 
   return (
     <nav className="bg-white shadow px-4 py-2 flex items-center justify-between">
@@ -23,13 +30,13 @@ const Navbar: React.FC = () => {
                   <Link to="/createSurvey" className="block px-4 py-2 hover:bg-gray-100">Create Survey</Link>
                 </div>
               </div>
-              <button onClick={logout} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Logout</button>
+              <button onClick={handleLogout} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Logout</button>
             </>
           ) : (
             <>
               <span className="text-gray-700">Hello, <b>{user.username}</b></span>
               <Link to={`/${user.username}-survey-submissions`} className="text-blue-600 hover:underline">My Submissions</Link>
-              <button onClick={logout} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Logout</button>
+              <button onClick={handleLogout} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Logout</button>
             </>
           )
         ) : (

@@ -21,7 +21,8 @@ const LoginPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-  await login(identifier, password);
+      await login(identifier, password);
+      alert('Login successful!');
       // Check for pending survey in localStorage
       const pending = localStorage.getItem('pendingSurvey');
       if (pending) {

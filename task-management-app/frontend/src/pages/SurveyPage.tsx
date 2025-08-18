@@ -79,8 +79,33 @@ const SurveyPage: React.FC = () => {
     );
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setAnswers({ ...answers, [currentQuestion.id]: e.target.value });
+
+  // Handles all single-value input types (text, number, email, tel, textarea, select, radio)
+  const handleInputChange = (questionId: string, value: string) => {
+    setAnswers((prev: any) => ({
+      ...prev,
+      [questionId]: value,
+    }));
+  };
+
+  // Handles checkbox (multi-select)
+  const handleCheckboxChange = (questionId: string, option: string) => {
+    setAnswers((prev: any) => {
+      const prevArr = Array.isArray(prev[questionId]) ? prev[questionId] : [];
+      if (prevArr.includes(option)) {
+        // Remove option
+        return {
+          ...prev,
+          [questionId]: prevArr.filter((o: string) => o !== option),
+        };
+      } else {
+        // Add option
+        return {
+          ...prev,
+          [questionId]: [...prevArr, option],
+        };
+      }
+    });
   };
 
   const handleNext = () => {
@@ -136,74 +161,92 @@ const SurveyPage: React.FC = () => {
           <>
             <div className="mb-4">
               <p className="font-semibold mb-2">{currentQuestion.text}</p>
-              {currentQuestion.type === 'text' && (
-                <input
-                  className="w-full border rounded px-3 py-2"
-                  type="text"
-                  value={answers[currentQuestion.id] ?? ''}
-                  onChange={handleChange}
-                />
-              )}
-              {currentQuestion.type === 'email' && (
-                <input
-                  className="w-full border rounded px-3 py-2"
-                  type="email"
-                  value={answers[currentQuestion.id] ?? ''}
-                  onChange={handleChange}
-                />
-              )}
-              {currentQuestion.type === 'tel' && (
-                <input
-                  className="w-full border rounded px-3 py-2"
-                  type="tel"
-                  value={answers[currentQuestion.id] ?? ''}
-                  onChange={handleChange}
-                />
-              )}
-              {currentQuestion.type === 'number' && (
-                <input
-                  className="w-full border rounded px-3 py-2"
-                  type="number"
-                  value={answers[currentQuestion.id] ?? ''}
-                  onChange={handleChange}
-                />
-              )}
-              {currentQuestion.type === 'textarea' && (
-                <textarea
-                  className="w-full border rounded px-3 py-2"
-                  value={answers[currentQuestion.id] ?? ''}
-                  onChange={handleChange}
-                />
-              )}
-              {currentQuestion.type === 'select' && currentQuestion.options && (
-                <select
-                  className="w-full border rounded px-3 py-2"
-                  value={answers[currentQuestion.id] ?? ''}
-                  onChange={handleChange}
-                >
-                  <option value="">Select...</option>
-                  {currentQuestion.options.map((opt: string) => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                </select>
-              )}
-              {currentQuestion.type === 'radio' && currentQuestion.options && (
-                <div className="space-y-2 mt-2">
-                  {currentQuestion.options.map((opt: string) => (
-                    <label key={opt} className="flex items-center">
-                      <input
-                        type="radio"
-                        name={currentQuestion.id}
-                        value={opt}
-                        checked={answers[currentQuestion.id] === opt}
-                        onChange={handleChange}
-                        className="mr-2"
-                      />
-                      {opt}
-                    </label>
-                  ))}
-                </div>
-              )}
+              <div className="flex flex-col gap-4 mt-4">
+                <h2 className="text-lg font-semibold mb-2">{currentQuestion.text}</h2>
+                {/* Render input based on question type */}
+                {(() => {
+                  const options = Array.isArray(currentQuestion.options) ? currentQuestion.options : [];
+                  switch (currentQuestion.type) {
+                    case "text":
+                    case "number":
+                    case "email":
+                    case "tel":
+                      return (
+                        <input
+                          type={currentQuestion.type}
+                          className="border rounded px-2 py-1"
+                          value={answers[currentQuestion.id] || ""}
+                          onChange={(e) => handleInputChange(currentQuestion.id, e.target.value)}
+                        />
+                      );
+                    case "textarea":
+                      return (
+                        <textarea
+                          className="border rounded px-2 py-1"
+                          value={answers[currentQuestion.id] || ""}
+                          onChange={(e) => handleInputChange(currentQuestion.id, e.target.value)}
+                        />
+                      );
+                    case "select":
+                      return options.length > 0 ? (
+                        <select
+                          className="border rounded px-2 py-1"
+                          value={answers[currentQuestion.id] || ""}
+                          onChange={(e) => handleInputChange(currentQuestion.id, e.target.value)}
+                        >
+                          <option value="">Select an option</option>
+                          {options.map((option: string, idx: number) => (
+                            <option key={idx} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <div className="text-red-500">No options available for this question.</div>
+                      );
+                    case "radio":
+                      return options.length > 0 ? (
+                        <div className="flex flex-col gap-2">
+                          {options.map((option: string, idx: number) => (
+                            <label key={idx} className="inline-flex items-center">
+                              <input
+                                type="radio"
+                                name={`question_${currentQuestion.id}`}
+                                value={option}
+                                checked={answers[currentQuestion.id] === option}
+                                onChange={() => handleInputChange(currentQuestion.id, option)}
+                              />
+                              <span className="ml-2">{option}</span>
+                            </label>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-red-500">No options available for this question.</div>
+                      );
+                    case "checkbox":
+                      return options.length > 0 ? (
+                        <div className="flex flex-col gap-2">
+                          {options.map((option: string, idx: number) => (
+                            <label key={idx} className="inline-flex items-center">
+                              <input
+                                type="checkbox"
+                                name={`question_${currentQuestion.id}`}
+                                value={option}
+                                checked={Array.isArray(answers[currentQuestion.id]) && answers[currentQuestion.id].includes(option)}
+                                onChange={() => handleCheckboxChange(currentQuestion.id, option)}
+                              />
+                              <span className="ml-2">{option}</span>
+                            </label>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-red-500">No options available for this question.</div>
+                      );
+                    default:
+                      return <div>Unsupported question type</div>;
+                  }
+                })()}
+              </div>
             </div>
             <div className="flex justify-between mt-6">
               <button

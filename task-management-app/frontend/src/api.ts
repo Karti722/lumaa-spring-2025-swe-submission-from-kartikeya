@@ -1,3 +1,9 @@
+// Fetch submissions by username (public or admin)
+export async function fetchUserSubmissionsByUsername(username: string) {
+  const res = await fetch(`${API_BASE}/user-submissions/${username}`);
+  if (!res.ok) throw new Error('Failed to fetch submissions by username');
+  return res.json();
+}
 // API utility for backend requests
 export const API_BASE = 'http://localhost:5000/api'; // Changed from 3000 to 5000
 
@@ -13,12 +19,11 @@ export async function fetchSurveyById(id: string) {
   return res.json();
 }
 
-export async function submitSurveyResponse(surveyId: string, answers: any, token?: string) {
+export async function submitSurveyResponse(surveyId: string, answers: any ) {
   const res = await fetch(`${API_BASE}/surveys/${surveyId}/submit`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(answers),
   });
@@ -46,10 +51,10 @@ export async function register(username: string, email: string, password: string
   return res.json();
 }
 
-export async function fetchUserSubmissions(token: string) {
-  const res = await fetch(`${API_BASE}/surveys/submissions`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error('Failed to fetch submissions');
+
+// Fetch submissions by username (public or admin)
+export async function fetchUserSubmissions(username: string) {
+  const res = await fetch(`${API_BASE}/user-submissions/${username}`);
+  if (!res.ok) throw new Error('Failed to fetch submissions by username');
   return res.json();
 }

@@ -18,6 +18,10 @@ export const getAllSurveySubmissions = async (): Promise<SurveySubmission[]> => 
 };
 // Get all submissions for a user
 export const getSurveySubmissionByUser = async (userId: number): Promise<SurveySubmission[]> => {
+  // const debugSurveyRows = await pool.query('SELECT * FROM survey_submissions');
+  // console.log('DEBUG: survey_submissions table rows for user_id', userId, debugSurveyRows.rows);
+  
+  
   const result = await pool.query(
     `SELECT ss.*, 
        json_agg(
@@ -34,7 +38,8 @@ export const getSurveySubmissionByUser = async (userId: number): Promise<SurveyS
      GROUP BY ss.id`,
     [userId]
   );
-  return result.rows || [];
+  console.log('User submissions found:', userId);
+  return result.rows;
 };
 // Delete all submissions and responses for a user
 export const deleteUserSubmissions = async (userId: number) => {
@@ -230,4 +235,15 @@ export const getSurveySubmissionBySession = async (sessionId: string): Promise<S
     [sessionId]
   );
   return result.rows[0] || null;
+};
+
+// Get all submissions for a user by username or email
+export const getSurveySubmissionByUsername = async (usernameOrEmail: string): Promise<SurveySubmission[]> => {
+  // Find user ID by username or email
+  const userResult = await pool.query('SELECT id FROM users WHERE username = $1 OR email = $1', [usernameOrEmail]);
+  const user = userResult.rows[0];
+  if (!user) return [];
+  const userId = user.id;
+  // Reuse existing logic
+  return getSurveySubmissionByUser(userId);
 };

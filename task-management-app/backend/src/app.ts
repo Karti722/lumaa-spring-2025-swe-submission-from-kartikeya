@@ -1,3 +1,4 @@
+// (logger middleware moved below app declaration)
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -6,6 +7,12 @@ import taskRoutes from './routes/taskRoutes';
 import surveyRoutes from './routes/surveyRoutes';
 
 const app = express();
+
+// Global request logger (must be after app is declared)
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
 
 app.use(cors());
 app.use(express.json());

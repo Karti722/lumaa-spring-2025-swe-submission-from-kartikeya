@@ -6,7 +6,7 @@ const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ const LoginPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      await login(email, password);
+  await login(identifier, password);
       // Check for pending survey in localStorage
       const pending = localStorage.getItem('pendingSurvey');
       if (pending) {
@@ -31,7 +31,9 @@ const LoginPage: React.FC = () => {
           questionId: Number(questionId),
           answer
         }));
-        await import('../api').then(api => api.submitSurveyResponse(surveyId, { responses }));
+  const user = JSON.parse(localStorage.getItem('auth') || '{}').user;
+  const username = user?.username;
+  await import('../api').then(api => api.submitSurveyResponse(surveyId, username ? { responses, username } : { responses }));
         localStorage.removeItem('pendingSurvey');
         navigate('/thank-you');
         return;
@@ -57,8 +59,8 @@ const LoginPage: React.FC = () => {
           className="mb-4 w-full px-3 py-2 border rounded"
           type="text"
           placeholder="Username or Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
+          value={identifier}
+          onChange={e => setIdentifier(e.target.value)}
           required
         />
         <input

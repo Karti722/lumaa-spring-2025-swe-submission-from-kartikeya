@@ -20,6 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(res.user);
     setToken(res.token);
     localStorage.setItem('auth', JSON.stringify({ user: res.user, token: res.token }));
+    console.log('JWT token after login:', res.token);
   };
 
   const register = async (username: string, email: string, password: string) => {

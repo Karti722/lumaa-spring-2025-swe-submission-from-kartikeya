@@ -17,18 +17,19 @@ const DashboardPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) return;
+    if (!user?.username) return;
     setLoading(true);
-    fetchUserSubmissions(token)
+    fetchUserSubmissions(user.username)
       .then(data => {
-        setSubmissions(data);
+        console.log('User submissions API response:', data);
+        setSubmissions(data.submissions || []);
         setLoading(false);
       })
       .catch(() => {
         setError('Failed to fetch submissions');
         setLoading(false);
       });
-  }, [token]);
+  }, [user?.username]);
 
   // Group submissions by survey title
   const grouped = submissions.reduce((acc, sub) => {
@@ -37,9 +38,6 @@ const DashboardPage: React.FC = () => {
     return acc;
   }, {} as Record<string, Submission[]>);
 
-  if (!user || user.username !== username) {
-    return <div className="flex justify-center items-center min-h-screen text-red-600">Unauthorized or not logged in.</div>;
-  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">

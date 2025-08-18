@@ -119,7 +119,8 @@ const SurveyPage: React.FC = () => {
         questionId: Number(questionId),
         answer
       }));
-      await submitSurveyResponse(survey.id, { responses }, token || undefined);
+      // Send user info in the request body
+      await submitSurveyResponse(survey.id, { responses });
       navigate(`/${user?.username}-survey-submissions`);
     } catch {
       alert('Failed to submit survey.');

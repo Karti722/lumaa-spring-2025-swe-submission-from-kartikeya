@@ -1,4 +1,3 @@
-
 import express from 'express';
 const router = express.Router();
 import {
@@ -12,8 +11,12 @@ import {
   getUserSubmissions,
   deleteUserSubmission,
   downloadAllSurveyData,
-  getAllSurveySubmissions
+  getAllSurveySubmissions,
+  getUserSubmissionsByUsername
 } from '../controllers/surveyController';
+
+// Add this route after router is declared
+router.get('/user-submissions/:username', getUserSubmissionsByUsername);
 // Admin: get all survey submissions
 router.get('/admin/all-submissions', getAllSurveySubmissions);
 // Admin: download all survey data (json/csv/txt)

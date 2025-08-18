@@ -67,14 +67,25 @@ import jwt from 'jsonwebtoken';
 import { getSurveySubmissionByUser, deleteSurveySubmission } from '../models/surveyModel';
 // Get all submissions for the current user
 export const getUserSubmissions = async (req: Request, res: Response) => {
-  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
+  const authHeader = req.headers.authorization;
+  const cookieToken = req.cookies?.token;
+  let headerToken = undefined;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    headerToken = authHeader.split(' ')[1];
+  }
+  const token = cookieToken || headerToken;
+  console.log('getUserSubmissions: Authorization header:', authHeader);
+  console.log('getUserSubmissions: Cookie token:', cookieToken);
+  console.log('getUserSubmissions: Header token:', headerToken);
+  console.log('getUserSubmissions: Using token:', token);
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
     const userId = decoded.userId;
     const submissions = await getSurveySubmissionByUser(userId);
     return res.json({ submissions });
-  } catch {
+  } catch (err) {
+    console.error('getUserSubmissions: Invalid token error:', err);
     return res.status(401).json({ error: 'Invalid token' });
   }
 };
@@ -102,7 +113,7 @@ import { Request, Response } from 'express';
 import { surveyService, createSurveyWithQuestions } from '../services/surveyService';
 
 interface AuthenticatedRequest extends Request {
-  user?: { userId: string };
+  user?: { userId: string, id: number };
   body: any;
   params: any;
 }
@@ -205,7 +216,7 @@ export const submitSurveyResponse = async (req: AuthenticatedRequest, res: Respo
       }
     }
     
-    const userId = req.user ? parseInt(req.user.userId) : undefined;
+    const userId = req.user ? req.user.id : undefined;
     const result = await surveyService.submitSurveyResponse(surveyId, responses, userId);
     
     res.status(201).json({
@@ -252,5 +263,18 @@ export const createSampleSurvey = async (req: Request, res: Response) => {
       error: 'Internal Server Error',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
+  }
+};
+
+// Get all submissions for a user by username
+import { getSurveySubmissionByUsername } from '../models/surveyModel';
+export const getUserSubmissionsByUsername = async (req: Request, res: Response) => {
+  const { username } = req.params;
+  if (!username) return res.status(400).json({ error: 'Username required' });
+  try {
+    const submissions = await getSurveySubmissionByUsername(username);
+    return res.json({ submissions });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to fetch submissions by username' });
   }
 };

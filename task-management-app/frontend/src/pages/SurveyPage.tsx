@@ -144,6 +144,14 @@ const SurveyPage: React.FC = () => {
                   onChange={handleChange}
                 />
               )}
+              {currentQuestion.type === 'number' && (
+                <input
+                  className="w-full border rounded px-3 py-2"
+                  type="number"
+                  value={answers[currentQuestion.id] ?? ''}
+                  onChange={handleChange}
+                />
+              )}
               {currentQuestion.type === 'textarea' && (
                 <textarea
                   className="w-full border rounded px-3 py-2"

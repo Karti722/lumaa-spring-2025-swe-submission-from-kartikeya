@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { API_BASE } from '../api';
+import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+
 
 const CreateSurveyPage: React.FC = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [questions, setQuestions] = useState<any[]>([]);
@@ -11,6 +16,13 @@ const CreateSurveyPage: React.FC = () => {
   const [required, setRequired] = useState(false);
   const [creating, setCreating] = useState(false);
   const [message, setMessage] = useState('');
+
+  // Redirect if not admin
+  useEffect(() => {
+    if (user && user.role !== 'admin') {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const addQuestion = () => {
     setQuestions([

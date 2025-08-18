@@ -1,9 +1,11 @@
 import { createContext } from 'react';
 
+
 interface User {
   id: string;
   username: string;
   email: string;
+  role?: string; // Add role for admin/user
 }
 
 interface AuthContextType {

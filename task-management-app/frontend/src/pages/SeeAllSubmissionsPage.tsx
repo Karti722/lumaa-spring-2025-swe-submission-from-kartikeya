@@ -1,10 +1,23 @@
+
 import React, { useEffect, useState } from 'react';
 import { API_BASE } from '../api';
+import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+
 
 const SeeAllSubmissionsPage: React.FC = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Redirect if not admin
+  useEffect(() => {
+    if (user && user.role !== 'admin') {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -53,11 +66,24 @@ const SeeAllSubmissionsPage: React.FC = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  // Download all data currently being viewed (JSON)
+  const handleDownloadAllData = () => {
+    const dataStr = JSON.stringify(submissions, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'all_submissions.json';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="flex flex-col items-center min-h-screen p-4">
       <h2 className="text-2xl font-bold mb-4">All Survey Submissions</h2>
       <div className="mb-4 space-x-2">
-        <button onClick={() => handleDownload('json')} className="bg-blue-600 text-white px-4 py-2 rounded">Download JSON</button>
+        <button onClick={() => handleDownload('json')} className="bg-blue-600 text-white px-4 py-2 rounded">Download JSON (from backend)</button>
+        <button onClick={handleDownloadAllData} className="bg-green-600 text-white px-4 py-2 rounded">Download All Data (JSON)</button>
         <button onClick={() => handleDownload('csv')} className="bg-blue-600 text-white px-4 py-2 rounded">Download CSV</button>
         <button onClick={() => handleDownload('txt')} className="bg-blue-600 text-white px-4 py-2 rounded">Download TXT</button>
       </div>

@@ -119,8 +119,8 @@ const SurveyPage: React.FC = () => {
         questionId: Number(questionId),
         answer
       }));
-      // Send user info in the request body
-      await submitSurveyResponse(survey.id, { responses });
+      console.log('Submitting survey with user:', user);
+      await submitSurveyResponse(survey.id, { responses, user });
       navigate(`/${user?.username}-survey-submissions`);
     } catch {
       alert('Failed to submit survey.');
@@ -131,7 +131,6 @@ const SurveyPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h2 className="text-2xl font-bold mb-4">{survey.title}</h2>
       <div className="bg-white shadow rounded p-6 w-full max-w-lg">
         {!showEndOptions ? (
           <>

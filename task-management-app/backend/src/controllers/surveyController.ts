@@ -216,7 +216,12 @@ export const submitSurveyResponse = async (req: AuthenticatedRequest, res: Respo
       }
     }
     
-    const userId = req.user ? req.user.id : undefined;
+    console.log('Request body user:', req.body.user);
+    let userId = req.user ? req.user.id : undefined;
+    // If not authenticated, try to get userId from request body
+    if (!userId && req.body.user && req.body.user.id) {
+      userId = req.body.user.id;
+    }
     const result = await surveyService.submitSurveyResponse(surveyId, responses, userId);
     
     res.status(201).json({

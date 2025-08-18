@@ -1,7 +1,7 @@
-// Get all survey submissions (admin)
-export const getAllSurveySubmissions = async (): Promise<SurveySubmission[]> => {
+// Get a single submission by its ID (with survey title and responses)
+export const getSurveySubmissionById = async (submissionId: number) => {
   const result = await pool.query(
-    `SELECT ss.*, 
+    `SELECT ss.*, s.title as survey_title, s.created_at as survey_created_at,
        json_agg(
          json_build_object(
            'id', r.id,
@@ -11,8 +11,30 @@ export const getAllSurveySubmissions = async (): Promise<SurveySubmission[]> => 
          )
        ) as responses
      FROM survey_submissions ss
+     JOIN surveys s ON ss.survey_id = s.id
      LEFT JOIN responses r ON ss.session_id = r.session_id
-     GROUP BY ss.id`
+     WHERE ss.id = $1
+     GROUP BY ss.id, s.title, s.created_at`,
+    [submissionId]
+  );
+  return result.rows[0] || null;
+};
+// Get all survey submissions (admin)
+export const getAllSurveySubmissions = async (): Promise<SurveySubmission[]> => {
+  const result = await pool.query(
+    `SELECT ss.*, s.title as survey_title, s.created_at as survey_created_at,
+       json_agg(
+         json_build_object(
+           'id', r.id,
+           'question_id', r.question_id,
+           'answer', r.answer,
+           'submitted_at', r.submitted_at
+         )
+       ) as responses
+     FROM survey_submissions ss
+     JOIN surveys s ON ss.survey_id = s.id
+     LEFT JOIN responses r ON ss.session_id = r.session_id
+     GROUP BY ss.id, s.title, s.created_at`
   );
   return result.rows || [];
 };
@@ -23,7 +45,7 @@ export const getSurveySubmissionByUser = async (userId: number): Promise<SurveyS
   
   
   const result = await pool.query(
-    `SELECT ss.*, 
+    `SELECT ss.*, s.title as survey_title, s.created_at as survey_created_at,
        json_agg(
          json_build_object(
            'id', r.id,
@@ -33,9 +55,10 @@ export const getSurveySubmissionByUser = async (userId: number): Promise<SurveyS
          )
        ) as responses
      FROM survey_submissions ss
+     JOIN surveys s ON ss.survey_id = s.id
      LEFT JOIN responses r ON ss.session_id = r.session_id
      WHERE ss.user_id = $1
-     GROUP BY ss.id`,
+     GROUP BY ss.id, s.title, s.created_at`,
     [userId]
   );
   console.log('User submissions found:', userId);
@@ -219,7 +242,7 @@ export const createSurveySubmission = async (submission: Omit<SurveySubmission, 
 
 export const getSurveySubmissionBySession = async (sessionId: string): Promise<SurveySubmission | null> => {
   const result = await pool.query(
-    `SELECT ss.*, 
+    `SELECT ss.*, s.title as survey_title, s.created_at as survey_created_at,
        json_agg(
          json_build_object(
            'id', r.id,
@@ -229,9 +252,10 @@ export const getSurveySubmissionBySession = async (sessionId: string): Promise<S
          )
        ) as responses
      FROM survey_submissions ss
+     JOIN surveys s ON ss.survey_id = s.id
      LEFT JOIN responses r ON ss.session_id = r.session_id
      WHERE ss.session_id = $1
-     GROUP BY ss.id`,
+     GROUP BY ss.id, s.title, s.created_at`,
     [sessionId]
   );
   return result.rows[0] || null;

@@ -1,3 +1,22 @@
+import { getSurveySubmissionById } from '../models/surveyModel';
+
+// Get a single submission by its ID (for detail page)
+export const getSurveySubmissionByIdController = async (req: Request, res: Response) => {
+  try {
+    const submissionId = parseInt(req.params.id);
+    if (isNaN(submissionId)) {
+      return res.status(400).json({ error: 'Invalid submission ID' });
+    }
+    const submission = await getSurveySubmissionById(submissionId);
+    if (!submission) {
+      return res.status(404).json({ error: 'Submission not found' });
+    }
+    res.json(submission);
+  } catch (error) {
+    console.error('Error fetching submission by ID:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 // Admin: Get all survey submissions
 export const getAllSurveySubmissions = async (req: Request, res: Response) => {
   const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];

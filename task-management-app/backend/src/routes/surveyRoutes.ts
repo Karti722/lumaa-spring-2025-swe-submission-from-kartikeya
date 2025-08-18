@@ -12,7 +12,8 @@ import {
   deleteUserSubmission,
   downloadAllSurveyData,
   getAllSurveySubmissions,
-  getUserSubmissionsByUsername
+  getUserSubmissionsByUsername,
+  getSurveySubmissionByIdController
 } from '../controllers/surveyController';
 
 // Add this route after router is declared
@@ -27,6 +28,8 @@ router.get('/surveys', getSurveys);
 router.get('/surveys/:id', getSurvey);
 router.post('/surveys/:id/submit', submitSurveyResponse);
 router.get('/submissions/:sessionId', getSurveySubmission);
+// New: get a single submission by its DB id
+router.get('/surveys/submissions/:id', getSurveySubmissionByIdController);
 
 // Authenticated user: get all their submissions
 router.get('/my-submissions', getUserSubmissions);

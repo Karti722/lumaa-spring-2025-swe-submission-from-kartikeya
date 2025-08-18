@@ -5,8 +5,10 @@ import { Link, useParams } from 'react-router-dom';
 
 interface Submission {
   id: string;
-  surveyTitle: string;
-  createdAt: string;
+  surveyTitle?: string; // legacy
+  createdAt?: string;   // legacy
+  survey_title?: string;
+  survey_created_at?: string;
 }
 
 const DashboardPage: React.FC = () => {
@@ -31,10 +33,11 @@ const DashboardPage: React.FC = () => {
       });
   }, [user?.username]);
 
-  // Group submissions by survey title
+  // Group submissions by survey title (prefer new field, fallback to old)
   const grouped = submissions.reduce((acc, sub) => {
-    acc[sub.surveyTitle] = acc[sub.surveyTitle] || [];
-    acc[sub.surveyTitle].push(sub);
+    const title = sub.survey_title || sub.surveyTitle || sub.survey_id || 'Untitled Survey';
+    acc[title] = acc[title] || [];
+    acc[title].push(sub);
     return acc;
   }, {} as Record<string, Submission[]>);
 
@@ -52,15 +55,18 @@ const DashboardPage: React.FC = () => {
           <div key={title} className="bg-white shadow rounded p-4 mb-4">
             <span className="font-semibold">{title}</span>
             <div className="mt-2 space-y-2">
-              {subs.map(sub => (
-                <Link
-                  key={sub.id}
-                  to={`/${user.username}-survey-submissions/${sub.id}`}
-                  className="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  View Submission ({new Date(sub.createdAt).toLocaleString()})
-                </Link>
-              ))}
+              {subs.map(sub => {
+                const dateStr = sub.survey_created_at || sub.createdAt;
+                return (
+                  <Link
+                    key={sub.id}
+                    to={`/${user.username}-survey-submissions/${sub.id}`}
+                    className="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    View Submission ({dateStr ? new Date(dateStr).toLocaleString() : 'No date'})
+                  </Link>
+                );
+              })}
             </div>
           </div>
         ))}

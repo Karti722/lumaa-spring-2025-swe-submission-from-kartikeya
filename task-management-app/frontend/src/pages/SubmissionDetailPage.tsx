@@ -5,10 +5,16 @@ import { API_BASE } from '../api';
 
 interface SubmissionDetail {
   id: string;
-  surveyTitle: string;
-  createdAt: string;
-  answers: Array<{ question: string; response: string }>;
-
+  surveyTitle?: string; // legacy
+  createdAt?: string;   // legacy
+  survey_title?: string;
+  survey_created_at?: string;
+  responses?: Array<{
+    id: number;
+    question_id: number;
+    answer: string;
+    submitted_at: string;
+  }>;
 }
 
 const SubmissionDetailPage: React.FC = () => {
@@ -38,7 +44,10 @@ const SubmissionDetailPage: React.FC = () => {
       });
   }, [token, submissionId]);
 
-  if (!user || user.username !== username) {
+  // Debug log for user and username
+  console.log('SubmissionDetailPage user:', user);
+  console.log('SubmissionDetailPage username param:', username);
+  if (!user) {
     return <div className="flex justify-center items-center min-h-screen text-red-600">Unauthorized or not logged in.</div>;
   }
 
@@ -47,15 +56,19 @@ const SubmissionDetailPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h2 className="text-2xl font-bold mb-4">{detail.surveyTitle} - Submission Details</h2>
+      <h2 className="text-2xl font-bold mb-4">{detail.survey_title || detail.surveyTitle || detail.id} - Submission Details</h2>
       <div className="bg-white shadow rounded p-6 w-full max-w-lg">
-        <div className="mb-2 text-gray-600">Submitted: {new Date(detail.createdAt).toLocaleString()}</div>
-        {detail.answers.map((a, idx) => (
-          <div key={idx} className="mb-4">
-            <div className="font-semibold">{a.question}</div>
-            <div className="text-gray-800">{a.response}</div>
-          </div>
-        ))}
+        <div className="mb-2 text-gray-600">Submitted: {(detail.survey_created_at || detail.createdAt) ? new Date(detail.survey_created_at || detail.createdAt!).toLocaleString() : 'No date'}</div>
+        {Array.isArray(detail.responses) && detail.responses.length > 0 ? (
+          detail.responses.map((resp, idx) => (
+            <div key={idx} className="mb-4">
+              <div className="font-semibold">Question ID: {resp.question_id}</div>
+              <div className="text-gray-800">{resp.answer}</div>
+            </div>
+          ))
+        ) : (
+          <div className="text-gray-500">No responses found for this submission.</div>
+        )}
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ const LandingPage: React.FC = () => {
   const { surveys, loading, error, refreshSurveys } = useSurvey();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+    <div className="flex flex-col items-center justify-center p-4 w-full">
       <h1 className="text-4xl font-bold mb-4">Welcome to the Survey App</h1>
       <p className="mb-8 text-lg text-gray-700">Start a survey below. You can login or register at any time to save your results!</p>
       <div className="w-full max-w-md space-y-4">

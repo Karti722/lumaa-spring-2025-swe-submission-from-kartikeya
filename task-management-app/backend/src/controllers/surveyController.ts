@@ -19,28 +19,65 @@ export const getSurveySubmissionByIdController = async (req: Request, res: Respo
 };
 // Admin: Get all survey submissions
 export const getAllSurveySubmissions = async (req: Request, res: Response) => {
-  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  let token = undefined;
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
+    console.log('[ADMIN ENDPOINT] Using Bearer token from Authorization header.');
+  } else if (req.cookies?.token) {
+    token = req.cookies.token;
+    console.log('[ADMIN ENDPOINT] Using token from cookies.');
+  } else {
+    console.warn('[ADMIN ENDPOINT] No token found in Authorization header or cookies.');
+  }
+  if (!token) {
+    return res.status(401).json({ error: 'Not authenticated: No token provided in header or cookie.' });
+  }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    console.log('[ADMIN ENDPOINT] Decoded token:', decoded);
+    if (!decoded.role) {
+      console.warn('[ADMIN ENDPOINT] Token does not contain a role:', decoded);
+      return res.status(401).json({ error: 'Invalid token: No role in token.' });
+    }
     if (decoded.role !== 'admin') {
+      console.warn('[ADMIN ENDPOINT] User is not admin:', decoded);
       return res.status(403).json({ error: 'Forbidden: Admins only' });
     }
     const submissions = await surveyService.getAllSurveySubmissions();
     res.json(submissions);
   } catch (e) {
-    return res.status(401).json({ error: 'Invalid token' });
+    console.error('[ADMIN ENDPOINT] Token verification failed:', e);
+    return res.status(401).json({ error: 'Invalid token: ' + (e instanceof Error ? e.message : String(e)) });
   }
 };
 import fs from 'fs';
 import path from 'path';
 // Admin-only: Download all survey data as JSON, CSV, or TXT
 export const downloadAllSurveyData = async (req: Request, res: Response) => {
-  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  let token = undefined;
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
+    console.log('[ADMIN ENDPOINT] Using Bearer token from Authorization header.');
+  } else if (req.cookies?.token) {
+    token = req.cookies.token;
+    console.log('[ADMIN ENDPOINT] Using token from cookies.');
+  } else {
+    console.warn('[ADMIN ENDPOINT] No token found in Authorization header or cookies.');
+  }
+  if (!token) {
+    return res.status(401).json({ error: 'Not authenticated: No token provided in header or cookie.' });
+  }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    console.log('[ADMIN ENDPOINT] Decoded token:', decoded);
+    if (!decoded.role) {
+      console.warn('[ADMIN ENDPOINT] Token does not contain a role:', decoded);
+      return res.status(401).json({ error: 'Invalid token: No role in token.' });
+    }
     if (decoded.role !== 'admin') {
+      console.warn('[ADMIN ENDPOINT] User is not admin:', decoded);
       return res.status(403).json({ error: 'Forbidden: Admins only' });
     }
     // Get all surveys with questions
@@ -79,7 +116,8 @@ export const downloadAllSurveyData = async (req: Request, res: Response) => {
       }
     });
   } catch (e) {
-    return res.status(401).json({ error: 'Invalid token' });
+    console.error('[ADMIN ENDPOINT] Token verification failed:', e);
+    return res.status(401).json({ error: 'Invalid token: ' + (e instanceof Error ? e.message : String(e)) });
   }
 };
 import jwt from 'jsonwebtoken';

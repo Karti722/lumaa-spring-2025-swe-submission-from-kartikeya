@@ -8,6 +8,8 @@ import ThankYouPage from './pages/ThankYouPage';
 import DashboardPage from './pages/DashboardPage';
 import SubmissionDetailPage from './pages/SubmissionDetailPage';
 import Navbar from './components/Navbar';
+import SeeAllSubmissionsPage from './pages/SeeAllSubmissionsPage';
+import CreateSurveyPage from './pages/CreateSurveyPage';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/thank-you" element={<ThankYouPage />} />
         <Route path="/:username-survey-submissions" element={<DashboardPage />} />
         <Route path="/:username-survey-submissions/:submissionId" element={<SubmissionDetailPage />} />
+        <Route path="/seeAllSubmissions" element={<SeeAllSubmissionsPage />} />
+        <Route path="/createSurvey" element={<CreateSurveyPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </div>

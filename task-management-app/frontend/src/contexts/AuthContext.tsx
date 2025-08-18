@@ -20,6 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(res.user);
     setToken(res.token);
     localStorage.setItem('auth', JSON.stringify({ user: res.user, token: res.token }));
+    localStorage.setItem('token', res.token); // Always store token for admin fetch
     console.log('JWT token after login:', res.token);
   };
 
@@ -28,12 +29,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(res.user);
     setToken(res.token);
     localStorage.setItem('auth', JSON.stringify({ user: res.user, token: res.token }));
+    localStorage.setItem('token', res.token); // Always store token for admin fetch
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
     localStorage.removeItem('auth');
+    localStorage.removeItem('token');
   };
 
   return (

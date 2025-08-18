@@ -12,11 +12,26 @@ const Navbar: React.FC = () => {
       </div>
       <div className="flex items-center space-x-4">
         {user ? (
-          <>
-            <span className="text-gray-700">Hello, <b>{user.username}</b></span>
-            <Link to={`/${user.username}-survey-submissions`} className="text-blue-600 hover:underline">My Submissions</Link>
-            <button onClick={logout} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Logout</button>
-          </>
+          user.role === 'admin' ? (
+            <>
+              <span className="text-gray-700">Hello, <b>{user.username}</b></span>
+              <div className="relative group">
+                <button className="text-blue-600 font-semibold px-4 py-2 rounded bg-gray-100">Admin Menu ▼</button>
+                <div className="absolute right-0 mt-2 w-56 bg-white border rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <Link to={`/${user.username}-survey-submissions`} className="block px-4 py-2 hover:bg-gray-100">My Submissions</Link>
+                  <Link to="/seeAllSubmissions" className="block px-4 py-2 hover:bg-gray-100">See All Submissions</Link>
+                  <Link to="/createSurvey" className="block px-4 py-2 hover:bg-gray-100">Create Survey</Link>
+                </div>
+              </div>
+              <button onClick={logout} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Logout</button>
+            </>
+          ) : (
+            <>
+              <span className="text-gray-700">Hello, <b>{user.username}</b></span>
+              <Link to={`/${user.username}-survey-submissions`} className="text-blue-600 hover:underline">My Submissions</Link>
+              <button onClick={logout} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Logout</button>
+            </>
+          )
         ) : (
           <>
             <span className="text-gray-500">Guest</span>

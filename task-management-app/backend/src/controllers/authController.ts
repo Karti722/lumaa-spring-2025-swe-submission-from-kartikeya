@@ -1,6 +1,6 @@
 // Minimal register function (username, password)
 export const register = async (req: Request, res: Response) => {
-    const { username, password } = req.body;
+    const { username, password, role } = req.body;
     try {
         // Check for unique username
         const existingUser = await findUserByUsername(username);
@@ -8,7 +8,9 @@ export const register = async (req: Request, res: Response) => {
             return res.status(409).json({ error: 'Username already exists' });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await createUser(username, hashedPassword, 'user');
+        // Allow admin registration if role is provided and is 'admin', else default to 'user'
+        const userRole = role === 'admin' ? 'admin' : 'user';
+        const user = await createUser(username, hashedPassword, userRole);
         res.status(201).json({ id: user.id, username: user.username, role: user.role });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });

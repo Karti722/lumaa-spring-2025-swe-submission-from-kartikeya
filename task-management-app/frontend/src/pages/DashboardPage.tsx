@@ -61,7 +61,7 @@ const DashboardPage: React.FC = () => {
                   <Link
                     key={sub.id}
                     to={`/${user.username}-survey-submissions/${sub.id}`}
-                    className="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    className="block px-4 py-2 bg-blue-200 text-black rounded hover:bg-blue-700"
                   >
                     View Submission ({dateStr ? new Date(dateStr).toLocaleString() : 'No date'})
                   </Link>

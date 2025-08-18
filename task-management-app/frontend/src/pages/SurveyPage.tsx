@@ -157,11 +157,11 @@ const SurveyPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="bg-white shadow rounded p-6 w-full max-w-lg">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] shadow-lg rounded-xl p-6 w-full max-w-lg">
         {!showEndOptions ? (
           <>
             <div className="mb-4">
-              <h2 className="text-lg font-semibold mb-2">{currentQuestion.text}</h2>
+              <h2 className="survey-question text-lg font-semibold mb-2">{currentQuestion.text}</h2>
               <div className="flex flex-col gap-4 mt-4">
                 {/* Render input based on question type */}
                 {(() => {
@@ -174,7 +174,7 @@ const SurveyPage: React.FC = () => {
                       return (
                         <input
                           type={currentQuestion.type}
-                          className="border rounded px-2 py-1"
+                          className="input bg-[var(--color-surface-alt)] text-[var(--color-text)] border border-[var(--color-border)] rounded px-3 py-2 focus:outline-none focus:border-[var(--color-primary)] focus:bg-[var(--color-surface)] transition"
                           value={answers[currentQuestion.id] || ""}
                           onChange={(e) => handleInputChange(currentQuestion.id, e.target.value)}
                         />
@@ -182,7 +182,7 @@ const SurveyPage: React.FC = () => {
                     case "textarea":
                       return (
                         <textarea
-                          className="border rounded px-2 py-1"
+                          className="input bg-[var(--color-surface-alt)] text-[var(--color-text)] border border-[var(--color-border)] rounded px-3 py-2 focus:outline-none focus:border-[var(--color-primary)] focus:bg-[var(--color-surface)] transition"
                           value={answers[currentQuestion.id] || ""}
                           onChange={(e) => handleInputChange(currentQuestion.id, e.target.value)}
                         />
@@ -190,7 +190,7 @@ const SurveyPage: React.FC = () => {
                     case "select":
                       return options.length > 0 ? (
                         <select
-                          className="border rounded px-2 py-1"
+                          className="input bg-[var(--color-surface-alt)] text-[var(--color-text)] border border-[var(--color-border)] rounded px-3 py-2 focus:outline-none focus:border-[var(--color-primary)] focus:bg-[var(--color-surface)] transition"
                           value={answers[currentQuestion.id] || ""}
                           onChange={(e) => handleInputChange(currentQuestion.id, e.target.value)}
                         >
@@ -215,8 +215,9 @@ const SurveyPage: React.FC = () => {
                                 value={option}
                                 checked={answers[currentQuestion.id] === option}
                                 onChange={() => handleInputChange(currentQuestion.id, option)}
+                                className="accent-[var(--color-primary)] mr-2"
                               />
-                              <span className="ml-2">{option}</span>
+                              <span>{option}</span>
                             </label>
                           ))}
                         </div>
@@ -234,8 +235,9 @@ const SurveyPage: React.FC = () => {
                                 value={option}
                                 checked={Array.isArray(answers[currentQuestion.id]) && answers[currentQuestion.id].includes(option)}
                                 onChange={() => handleCheckboxChange(currentQuestion.id, option)}
+                                className="accent-[var(--color-primary)] mr-2"
                               />
-                              <span className="ml-2">{option}</span>
+                              <span>{option}</span>
                             </label>
                           ))}
                         </div>
@@ -248,16 +250,16 @@ const SurveyPage: React.FC = () => {
                 })()}
               </div>
             </div>
-            <div className="flex justify-between mt-6">
+            <div className="flex justify-between mt-6 gap-4">
               <button
-                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+                className={`survey-btn px-6 py-2 rounded-lg font-semibold shadow-sm border transition ${step === 0 ? 'survey-btn-disabled' : 'survey-btn-nav'}`}
                 onClick={handlePrev}
                 disabled={step === 0}
               >
                 Previous
               </button>
               <button
-                className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+                className={`survey-btn px-6 py-2 rounded-lg font-semibold shadow-md border transition ${!answers[currentQuestion.id] ? 'survey-btn-disabled' : 'survey-btn-primary'}`}
                 onClick={handleNext}
                 disabled={!answers[currentQuestion.id]}
               >
@@ -267,24 +269,13 @@ const SurveyPage: React.FC = () => {
           </>
         ) : (
           <div className="flex flex-col space-y-2 mt-8">
-            {!user && (
-              <button
-                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-                onClick={handleAnonymousSubmit}
-                disabled={submitting}
-              >
-                Submit Anonymously
-              </button>
-            )}
-            {user && (
-              <button
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                onClick={handleUserSubmit}
-                disabled={submitting}
-              >
-                Submit as {user.username}
-              </button>
-            )}
+            <button
+              className={`survey-btn px-6 py-2 rounded-lg font-semibold shadow-md border transition ${submitting ? 'survey-btn-disabled' : 'survey-btn-primary'}`}
+              onClick={user ? handleUserSubmit : handleAnonymousSubmit}
+              disabled={submitting}
+            >
+              {user ? `Submit as ${user.username}` : 'Submit Anonymously'}
+            </button>
           </div>
         )}
       </div>

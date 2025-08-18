@@ -81,7 +81,7 @@ const RegisterPage: React.FC = () => {
         />
         {error && <div className="text-red-600 mb-2 text-sm">{error}</div>}
         <button
-          className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+          className="m-1 w-full hover:text-green-500 px-4 py-2 bg-green-600 text-black rounded hover:bg-green-700 disabled:opacity-50"
           type="submit"
           disabled={loading}
         >

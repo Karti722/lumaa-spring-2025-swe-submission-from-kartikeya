@@ -84,7 +84,7 @@ export const deleteUserSubmission = async (req: Request, res: Response) => {
   }
 };
 import { Request, Response } from 'express';
-import { surveyService } from '../services/surveyService';
+import { surveyService, createSurveyWithQuestions } from '../services/surveyService';
 
 interface AuthenticatedRequest extends Request {
   user?: { userId: string };
@@ -132,13 +132,12 @@ export const getSurvey = async (req: Request, res: Response) => {
 
 export const createSurvey = async (req: Request, res: Response) => {
   try {
-    const { title, description } = req.body;
-    
+    const { title, description, questions } = req.body;
     if (!title) {
       return res.status(400).json({ error: 'Survey title is required' });
     }
-    
-    const survey = await surveyService.createSurvey(title, description);
+    // Create the survey first
+  const survey = await createSurveyWithQuestions(title, description, questions);
     res.status(201).json(survey);
   } catch (error) {
     console.error('Error creating survey:', error);

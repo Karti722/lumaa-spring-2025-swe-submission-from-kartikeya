@@ -15,10 +15,35 @@ import {
 } from '../models/surveyModel';
 import { v4 as uuidv4 } from 'uuid';
 
-export class SurveyService {
+class SurveyService {
   // Survey operations
   async createSurvey(title: string, description?: string): Promise<Survey> {
     return await createSurvey({ title, description });
+  }
+
+  // New: create survey and questions in one go
+  async createSurveyWithQuestions(title: string, description: string, questions: any[] = []): Promise<any> {
+    // Create the survey
+    const survey = await createSurvey({ title, description });
+    // If questions are provided, create them
+    if (questions && Array.isArray(questions)) {
+      for (let i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        // Map frontend fields to backend model fields
+        await createQuestion({
+          survey_id: survey.id,
+          title: q.text || q.title || '',
+          description: q.description || '',
+          question_type: q.type || q.question_type || 'text',
+          options: q.options || null,
+          required: q.required || false,
+          order_index: i
+        });
+      }
+    }
+    // Return the survey with questions
+    const fullSurvey = await this.getSurveyWithQuestions(survey.id);
+    return fullSurvey;
   }
 
   async getAllSurveys(): Promise<Survey[]> {
@@ -174,3 +199,5 @@ export class SurveyService {
 }
 
 export const surveyService = new SurveyService();
+// Export the method for direct use in controller
+export const createSurveyWithQuestions = surveyService.createSurveyWithQuestions.bind(surveyService);

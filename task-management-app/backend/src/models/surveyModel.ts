@@ -107,7 +107,14 @@ export const createQuestion = async (question: Omit<Question, 'id'>): Promise<Qu
     console.log('DB returned row:', row);
     return {
       ...row,
-      options: row.options ? JSON.parse(row.options) : null
+      options: (() => {
+        if (!row.options) return null;
+        if (Array.isArray(row.options)) return row.options;
+        if (typeof row.options === 'string') {
+          try { return JSON.parse(row.options); } catch { return row.options.split(','); }
+        }
+        return null;
+      })()
     };
   } catch (error) {
     console.error('Error creating question:', error);
@@ -142,7 +149,14 @@ export const getQuestionsBySurveyId = async (surveyId: number): Promise<Question
       try {
         return {
           ...row,
-          options: row.options ? JSON.parse(row.options) : null
+          options: (() => {
+            if (!row.options) return null;
+            if (Array.isArray(row.options)) return row.options;
+            if (typeof row.options === 'string') {
+              try { return JSON.parse(row.options); } catch { return row.options.split(','); }
+            }
+            return null;
+          })()
         };
       } catch (parseError) {
         console.error('Error parsing options for question:', row.id, parseError);

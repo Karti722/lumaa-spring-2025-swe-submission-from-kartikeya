@@ -55,6 +55,7 @@ const SurveyPage: React.FC = () => {
 
   const questions = survey?.questions ?? [];
   const currentQuestion = questions[step];
+
   const isLast = step === questions.length - 1;
 
   // Defensive: If no questions, show message
@@ -160,9 +161,8 @@ const SurveyPage: React.FC = () => {
         {!showEndOptions ? (
           <>
             <div className="mb-4">
-              <p className="font-semibold mb-2">{currentQuestion.text}</p>
+              <h2 className="text-lg font-semibold mb-2">{currentQuestion.text}</h2>
               <div className="flex flex-col gap-4 mt-4">
-                <h2 className="text-lg font-semibold mb-2">{currentQuestion.text}</h2>
                 {/* Render input based on question type */}
                 {(() => {
                   const options = Array.isArray(currentQuestion.options) ? currentQuestion.options : [];

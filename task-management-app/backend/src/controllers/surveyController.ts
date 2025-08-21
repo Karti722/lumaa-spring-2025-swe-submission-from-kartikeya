@@ -1,4 +1,6 @@
 import { getSurveySubmissionById } from '../models/surveyModel';
+import jwt from 'jsonwebtoken';
+import { getSurveySubmissionByUser, deleteSurveySubmission } from '../models/surveyModel';
 
 // Get a single submission by its ID (for detail page)
 export const getSurveySubmissionByIdController = async (req: Request, res: Response) => {
@@ -120,8 +122,7 @@ export const downloadAllSurveyData = async (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Invalid token: ' + (e instanceof Error ? e.message : String(e)) });
   }
 };
-import jwt from 'jsonwebtoken';
-import { getSurveySubmissionByUser, deleteSurveySubmission } from '../models/surveyModel';
+
 // Get all submissions for the current user
 export const getUserSubmissions = async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;

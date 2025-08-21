@@ -3,7 +3,6 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes';
-// import taskRoutes from './routes/taskRoutes';
 import surveyRoutes from './routes/surveyRoutes';
 
 const app = express();

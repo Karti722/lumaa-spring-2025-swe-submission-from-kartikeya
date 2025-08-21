@@ -1,3 +1,10 @@
+import { Request, Response } from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { findUserByUsername, createUser } from '../models/userModel';
+import { pool } from '../utils/db';
+import { deleteUserSubmissions } from '../models/surveyModel';
+
 // Minimal register function (username, password)
 export const register = async (req: Request, res: Response) => {
     const { username, password, role } = req.body;
@@ -16,13 +23,6 @@ export const register = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-// ...existing code...
-import { findUserByUsername, createUser } from '../models/userModel';
-import { pool } from '../utils/db';
-import { deleteUserSubmissions } from '../models/surveyModel';
 
 export const login = async (req: Request, res: Response) => {
     const { email, username, password } = req.body;

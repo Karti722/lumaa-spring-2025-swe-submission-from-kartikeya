@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes';
-import taskRoutes from './routes/taskRoutes';
+// import taskRoutes from './routes/taskRoutes';
 import surveyRoutes from './routes/surveyRoutes';
 
 const app = express();
@@ -33,6 +33,5 @@ app.get('/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api', surveyRoutes);
-app.use('/', taskRoutes);
 
 export default app;
